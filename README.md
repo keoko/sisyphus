@@ -1,32 +1,22 @@
 # sisyphus
 
-FIXME: description
+FIXME: Central configuration system.
 
 ## Installation
 
-Download from http://example.com/FIXME.
+lein run
 
 ## Usage
 
-FIXME: explanation
+lein run
 
-    $ java -jar sisyphus-0.1.0-standalone.jar [args]
 
-## Options
 
-FIXME: listing of options this app accepts.
+### TODO
 
-## Examples
+### NICE TO HAVE
+- yada: missing some documentation
 
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
 
 ## License
 
