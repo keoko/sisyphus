@@ -13,8 +13,8 @@ lein run
 
 
 ### TODO
-- validate config data structure with schema
-- merge data from two files
+- schema coercion
+- optional keys
 - merge data from multiple files
 - configuration hierarchy
 - configuration variants
@@ -23,6 +23,8 @@ lein run
 - store data in git repository, each branch one environment
 - logging
 - caching strategy
+- rename endpoint
+
 
 ### DONE
 - different configurations by environment
