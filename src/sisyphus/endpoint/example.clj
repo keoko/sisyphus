@@ -1,15 +1,20 @@
 (ns sisyphus.endpoint.example
-  (:require [compojure.core :refer :all]))
+  (:require [compojure.core :refer :all]
+            [clojure.java.io :as io]
+            [clojure.edn :as edn]))
 
-(def data
-  {:dev "dev data"
-   :stg "stg data"
-   :prd "prd data"})
+(def config-filename "resources/data/example.edn")
+
+(defn load-config []
+  (-> config-filename
+      io/file
+      slurp
+      edn/read-string))
 
 (defn example-endpoint [config]
   (context "/example" []
     (GET "/:env" [env :<< keyword]
-         (let [conf (get data env nil)]
+         (let [conf (get (load-config) env nil)]
            (if conf
              {:status 200
               :headers {"Content-Type" "text/html; charset=utf-8"}
