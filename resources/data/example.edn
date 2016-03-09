@@ -1,0 +1,3 @@
+{:prd "prd data"
+ :stg "stg data"
+ :dev "dev data"}

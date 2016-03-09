@@ -19,6 +19,8 @@ lein run
 ### NICE TO HAVE
 - yada: missing some documentation
 
+### DOUBTS
+- how to autoreload system after a change?
 
 ## License
 
