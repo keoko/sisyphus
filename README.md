@@ -13,10 +13,24 @@ lein run
 
 
 ### TODO
-- different configurations by environment (hardcoded values) (:local :dev :stg :prd)
+- validate config data structure with schema
+- merge data from two files
+- merge data from multiple files
+- configuration hierarchy
+- configuration variants
+- backoffice to manage configuration
+- store data as YAML and convert it to EDN
+- store data in git repository, each branch one environment
+- logging
+- caching strategy
+
+### DONE
+- different configurations by environment
 
 
-### NICE TO HAVE
+
+### NICE TO HAVE
+- show historical data
 - yada: missing some documentation
 
 ### DOUBTS
