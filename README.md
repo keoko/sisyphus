@@ -13,6 +13,8 @@ lein run
 
 
 ### TODO
+- different configurations by environment (hardcoded values) (:local :dev :stg :prd)
+
 
 ### NICE TO HAVE
 - yada: missing some documentation
