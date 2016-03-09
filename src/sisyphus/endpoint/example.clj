@@ -6,7 +6,8 @@
             [meta-merge.core :refer [meta-merge]]))
 
 
-(s/defschema Config [s/Str])
+(s/defschema Config {s/Keyword s/Any
+                     (s/optional-key :zar) s/Keyword})
 
 (def default-config-filename "resources/data/default.edn")
 (def config-filename "resources/data/example.edn")
@@ -32,15 +33,17 @@
   (context "/example" []
     (GET "/:env" [env :<< keyword]
          (let [config (get (load-config) env nil)]
-           (if config
-             (if (validate-config config)
+           (try
+             (if (and config (validate-config config))
                {:status 200
                 :headers {"Content-Type" "text/html; charset=utf-8"}
                 :body (str config)}
+               
+               {:status 404
+                :headers {"Content-Type" "text/html; charset=utf-8"}
+                :body "not found"})
+             (catch Exception e 
                {:status 500
                 :headers {"Content-Type" "text/html; charset=utf-8"}
-                :body (validate-config config)
-                })
-             {:status 404
-              :headers {"Content-Type" "text/html; charset=utf-8"}
-              :body "not found"})))))
+                :body (.getMessage e)
+                }))))))

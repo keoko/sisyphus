@@ -1,2 +1,5 @@
-{:stg ["stg data"]
- :dev ["dev data"]}
+{:stg {:foo "stg data"}
+ :dev {:bar {:a "1234"
+             :b [1 2 3 4]}}
+ :prd {:zar [1 2 3 4]}
+}

@@ -29,14 +29,14 @@ lein run
 ### DONE
 - different configurations by environment
 
-
-
 ### NICE TO HAVE
 - show historical data
 - yada: missing some documentation
 
 ### DOUBTS
 - how to autoreload system after a change?
+- how to sync config and schema?
+
 
 ## License
 

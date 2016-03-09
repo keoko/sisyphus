@@ -1,1 +1,2 @@
-{:local "local test 1234"}
+{:local {:foo "local test 1234"}
+ :prd {:qwe "1"}}
