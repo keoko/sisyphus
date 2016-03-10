@@ -19,14 +19,19 @@
       slurp
       edn/read-string))
 
+(defn read-directory [dirname]
+  (let [directory (io/file dirname)
+        files (file-seq directory)]
+    (reduce (fn [x y] (meta-merge x (read-single-file y))) files)))
+
 (defn load-config []
-  (meta-merge
+  (read-directory "resources/data")
+  #_(meta-merge
    (read-single-file default-config-filename)
    (read-single-file config-filename))
 )
 
 (defn validate-config [config]
-  (print config)
   (s/validate Config config))
 
 (defn example-endpoint [config]

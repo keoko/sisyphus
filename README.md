@@ -11,20 +11,29 @@ lein run
 lein run
 
 
-
 ### TODO
 - schema coercion
-- optional keys
 - merge data from multiple files
+- merge data from multiple schemas
+- sort file strategy (by name?)
 - configuration hierarchy
 - configuration variants
-- backoffice to manage configuration
 - store data as YAML and convert it to EDN
+- return data in YAML
 - store data in git repository, each branch one environment
+- backoffice to manage configuration
 - logging
-- caching strategy
+- server caching strategy
 - rename endpoint
+- security
+- versioning
+- HEAD
 
+# hierarchical keys
+prd/oms/default.edn
+prd/oms/HH/default.edn
+prd/oms/HH/jobs.edn
+prd/oms/HH/ICC/EU/UK
 
 ### DONE
 - different configurations by environment
@@ -34,8 +43,10 @@ lein run
 - yada: missing some documentation
 
 ### DOUBTS
-- how to autoreload system after a change?
+- how to autoreload clojure system after a change?
 - how to sync config and schema?
+- how to store the general config? replicated in all branches? how to keep them sync?
+- how flexible are hierarchical keys?
 
 
 ## License
