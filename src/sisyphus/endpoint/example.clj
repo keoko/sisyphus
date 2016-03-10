@@ -36,11 +36,11 @@
 
 (defn example-endpoint [config]
   (context "/example" []
-    (GET "/:env" [env :<< keyword]
-         (let [config (get (load-config) env nil)]
-           (try
-             (if (and config (validate-config config))
-               {:status 200
+           (GET ["/:env/:key" :key #".*"] [env :<< keyword & config-key]
+                (let [config (get (load-config) env nil)]
+                  (try
+                    (if (and config (validate-config config))
+                      {:status 200
                 :headers {"Content-Type" "text/html; charset=utf-8"}
                 :body (str config)}
                

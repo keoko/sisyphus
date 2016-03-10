@@ -12,10 +12,11 @@ lein run
 
 
 ### TODO
-- schema coercion
-- merge data from multiple files
-- merge data from multiple schemas
+- merge data from multiple directories
 - sort file strategy (by name?)
+- get key from URI
+- merge data from multiple schemas
+- schema coercion
 - configuration hierarchy
 - configuration variants
 - store data as YAML and convert it to EDN
@@ -24,10 +25,12 @@ lein run
 - backoffice to manage configuration
 - logging
 - server caching strategy
-- rename endpoint
-- security
+- rename endpoint to config
+- security (authentication OAuth?)
 - versioning
-- HEAD
+- HEAD HTTP header
+- key definition
+- UI to simplify
 
 # hierarchical keys
 prd/oms/default.edn
@@ -39,10 +42,12 @@ prd/oms/HH/ICC/EU/UK
 - different configurations by environment
 
 ### NICE TO HAVE
+- stored files in EDN or YAML
 - show historical data
 - yada: missing some documentation
 
 ### DOUBTS
+- how to debug web app - logging?
 - how to autoreload clojure system after a change?
 - how to sync config and schema?
 - how to store the general config? replicated in all branches? how to keep them sync?

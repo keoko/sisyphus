@@ -3,3 +3,5 @@
 ** 2016/03/07 checked yada library but not enough documentation avaiable at this time
 ** 2016/03/08 investigated component for managing lifecycle of the app
 ** 2016/03/09 created project from duct template as it already set up the component structure
+** 
+
