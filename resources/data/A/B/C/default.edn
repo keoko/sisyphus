@@ -1,0 +1,5 @@
+{:local {:foo "local test 1234"}
+ :prd {:qwe "1"}
+ :stg {:server "1.1.1.1"
+       :port "8080"
+       :name "it's C"}}

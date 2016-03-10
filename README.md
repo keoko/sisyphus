@@ -14,7 +14,6 @@ lein run
 ### TODO
 - merge data from multiple directories
 - sort file strategy (by name?)
-- get key from URI
 - merge data from multiple schemas
 - schema coercion
 - configuration hierarchy
