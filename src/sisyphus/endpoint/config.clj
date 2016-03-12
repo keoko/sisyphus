@@ -1,4 +1,4 @@
-(ns sisyphus.endpoint.example
+(ns sisyphus.endpoint.config
   (:require [compojure.core :refer :all]
             [clojure.java.io :as io]
             [clojure.edn :as edn]

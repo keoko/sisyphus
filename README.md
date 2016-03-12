@@ -45,8 +45,16 @@ prd/oms/HH/EU/UK/default.edn
 - bind mac copy, paste keys
 - block selection
 - magit
+- clj-refactor
+
+### Features
+- different configuration by environment (development, staging, production).
+- hierarchical keys (e.g. A, A/B, A/B/C).
+- optional config validation.
+
 
 ### NICE TO HAVE
+- metrics
 - schema coercion
 - stored files in EDN or YAML
 - show historical data
