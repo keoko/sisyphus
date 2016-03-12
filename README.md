@@ -17,7 +17,6 @@ lein run
 - key definition
 - move keywords :stg, :dev, :prd, etc into directories
 - move out logic from endpoint
-- rename endpoint to config
 - return data in YAML
 - store data in git repository, each branch one environment
 - versioning
