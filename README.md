@@ -1,6 +1,6 @@
 # sisyphus
 
-FIXME: Central configuration system.
+Central configuration system.
 
 ## Installation
 
@@ -8,17 +8,19 @@ lein run
 
 ## Usage
 
-lein run
+curl http://localhost:3000/<environment>/<key>/<subkey>/...
+
+curl http://localhost:3000/dev/A/B
 
 
 ### TODO
+- move out logic from endpoint
+- move keywords :stg, :dev, :prd, etc into directories
+- store data in git repository, each branch one environment
 - check file-seq, it's getting subdirs also
 - sort file strategy (by name?)
 - key definition
-- move keywords :stg, :dev, :prd, etc into directories
-- move out logic from endpoint
 - return data in YAML
-- store data in git repository, each branch one environment
 - versioning
 - logging
 - security (authentication OAuth?)
@@ -26,7 +28,6 @@ lein run
 - backoffice to manage configuration
 - UI to simplify
 - do not overwrite environment copies
-- change 
 - view clearly config inheritance
 
 # hierarchical keys
@@ -37,8 +38,6 @@ prd/oms/HH/default.edn
 prd/oms/HH/jobs.edn
 prd/oms/HH/EU/UK/default.edn
 
-### DONE
-- different configurations by environment
 
 ### Emacs
 - bind mac copy, paste keys
