@@ -3,13 +3,13 @@
             [clojure.test :refer :all]
             [kerodon.core :refer :all]
             [kerodon.test :refer :all]
-            [sisyphus.endpoint.example :as example]))
+            [sisyphus.endpoint.config :as config]))
 
 (def handler
-  (example/example-endpoint {}))
+  (config/config-endpoint {}))
 
 (deftest smoke-test
   (testing "example page exists"
     (-> (session handler)
-        (visit "/example")
+        (visit "/config")
         (has (status? 200) "page exists"))))

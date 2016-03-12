@@ -6,7 +6,7 @@
             [meta-merge.core :refer [meta-merge]]
             [ring.component.jetty :refer [jetty-server]]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
-            [sisyphus.endpoint.example :refer [example-endpoint]]))
+            [sisyphus.endpoint.config :refer [config-endpoint]]))
 
 (def base-config
   {:app {:middleware [[wrap-not-found :not-found]
@@ -19,8 +19,8 @@
     (-> (component/system-map
          :app  (handler-component (:app config))
          :http (jetty-server (:http config))
-         :example (endpoint-component example-endpoint))
+         :config (endpoint-component config-endpoint))
         (component/system-using
          {:http [:app]
-          :app  [:example]
-          :example []}))))
+          :app  [:config]
+          :config []}))))
