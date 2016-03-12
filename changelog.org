@@ -4,4 +4,5 @@
 ** 2016/03/08 investigated component for managing lifecycle of the app
 ** 2016/03/09 created project from duct template as it already set up the component structure
 ** 2016/03/10 created endpoint to get some basic configurations with schema validation, different from every environment
+** 2016/03/11 played with EDN data structure validation with Schema. Not sure if Schema is the library I'm looking for.
 
