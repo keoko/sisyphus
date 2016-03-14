@@ -10,13 +10,13 @@
            (GET ["/:env/:config-key" :config-key #".*"] 
                 [env :<< keyword 
                  config-key :<< str]
-                (let [config (get (load-data config-key) env nil)
+                (let [config (load-data config-key env)
                       schema (build-schema)]
                   (try                    
-                    (if (and config (validate-schema schema config))
+                    (if (or true config (validate-schema schema config))
                       {:status 200
                        :headers {"Content-Type" "text/html; charset=utf-8"}
-                       :body (str config)}
+                       :body (str "->" (doall config))}
              
                       {:status 404
                        :headers {"Content-Type" "text/html; charset=utf-8"}

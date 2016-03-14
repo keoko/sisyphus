@@ -11,9 +11,9 @@
  (reduce (fn [x y] (meta-merge x (f y))) {}  s))
 
 (defn build-paths 
-  [dirs]
+  [dirs base-path]
   (for [i (range 1 (inc (count dirs)))]
-    (str data-path "/" (clojure.string/join "/" (take i dirs)))))
+    (str base-path "/" (clojure.string/join "/" (take i dirs)))))
 
 (defn read-single-file 
   [filename]
@@ -29,16 +29,15 @@
     (merge-config files read-single-file)))
 
 
-
 (defn read-directories 
-  [dirs]
-  (let [paths (build-paths dirs)
+  [dirs env]
+  (let [base-path (str data-path "/" (name env))
+        paths (build-paths dirs base-path)
         get-existing-dirs (take-while #(.isDirectory (io/file %)) paths)]
-    get-existing-dirs
     (merge-config get-existing-dirs read-directory)))
 
 (defn load-data
-  [config-key]
+  [config-key env]
   (let [dirs (clojure.string/split config-key #"/")]
-    (read-directories dirs)))
+    (read-directories dirs env)))
 

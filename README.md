@@ -13,24 +13,20 @@ curl http://localhost:3000/<environment>/<key>/<subkey>/...
 curl http://localhost:3000/dev/A/B
 
 
-### TODO
-- move out logic from endpoint
+## TODO
 - move keywords :stg, :dev, :prd, etc into directories
 - store data in git repository, each branch one environment
+- versioning
 - check file-seq, it's getting subdirs also
 - sort file strategy (by name?)
-- key definition
+- key definition in Schema
 - return data in YAML
-- versioning
 - logging
 - security (authentication OAuth?)
-- HEAD HTTP header
 - backoffice to manage configuration
-- UI to simplify
-- do not overwrite environment copies
-- view clearly config inheritance
 
-# hierarchical keys
+
+## hierarchical keys
 
 prd/oms/default.edn
 prd/oms/payments.edn
@@ -39,19 +35,22 @@ prd/oms/HH/jobs.edn
 prd/oms/HH/EU/UK/default.edn
 
 
-### Emacs
+## Emacs
 - bind mac copy, paste keys
 - block selection
 - magit
 - clj-refactor
+- how to autocomplete in emacs (autocomplete)
+- how to jump to clj functions (imenu)
 
-### Features
+
+## Features
 - different configuration by environment (development, staging, production).
 - hierarchical keys (e.g. A, A/B, A/B/C).
 - optional config validation.
 
 
-### NICE TO HAVE
+## NICE TO HAVE
 - metrics
 - schema coercion
 - stored files in EDN or YAML
@@ -59,11 +58,11 @@ prd/oms/HH/EU/UK/default.edn
 - yada: missing some documentation
 - unit/integration/acceptance testing
 - server caching strategy
+- client UI to manage and store data
+- caching strategy (HTTP HEAD, etc)
 
 
-### DOUBTS
-- how to autocomplete in emacs (autocomplete)
-- how to jump to clj functions (imenu)
+## DOUBTS
 - how to debug web app - logging?
 - how to autoreload clojure system after a change?
 - how to sync config and schema?
