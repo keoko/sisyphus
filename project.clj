@@ -11,6 +11,7 @@
                  [ring "1.4.0"]
                  [ring/ring-defaults "0.1.5"]
                  [ring-jetty-component "0.3.0"]
+                 [clj-jgit "0.8.8"]
                  [prismatic/schema "1.0.5"]]
   :plugins [[lein-environ "1.0.2"]
             [lein-gen "0.2.2"]]
