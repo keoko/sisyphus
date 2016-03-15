@@ -14,9 +14,7 @@ curl http://localhost:3000/dev/A/B
 
 
 ## TODO
-- move keywords :stg, :dev, :prd, etc into directories
-- store data in git repository, each branch one environment
-- versioning
+- store data in git repository. 1 repo per app-environment (being on the same repo, branch, or different repos).
 - check file-seq, it's getting subdirs also
 - sort file strategy (by name?)
 - key definition in Schema
@@ -24,6 +22,7 @@ curl http://localhost:3000/dev/A/B
 - logging
 - security (authentication OAuth?)
 - backoffice to manage configuration
+- concurrency issues http://akazlou.com/posts/2015-12-12-small-experiment-git-ds.html
 
 
 ## hierarchical keys
@@ -60,9 +59,12 @@ prd/oms/HH/EU/UK/default.edn
 - server caching strategy
 - client UI to manage and store data
 - caching strategy (HTTP HEAD, etc)
-
+- versioning: use git tags, or git hash numbers to retrieve specific versions. Not so sure, it's so useful, as you would usually be interested on the latest changes. If it's rarely used, it could be implemented just cloning a repo, just for that case. It would take more time.
+- Datomic as data store.
 
 ## DOUBTS
+- 1 repo per environment vs all environments in 1 repo?
+- how to pull files in git repo wihout concurrency issues
 - how to debug web app - logging?
 - how to autoreload clojure system after a change?
 - how to sync config and schema?
@@ -71,6 +73,17 @@ prd/oms/HH/EU/UK/default.edn
 - does it make sense to expose API to fine grained keys?
 - how to change configuration? git clients? special UI?
 - can we build UI from schema definition?
+
+## Links
+- http://akazlou.com/posts/2015-12-12-small-experiment-git-ds.html
+- https://www.thoughtworks.com/insights/blog/incremental-approach-content-management-using-git
+- https://www.thoughtworks.com/insights/blog/implementing-content-management-and-publication-using-git
+- http://hacienda.io/
+- https://github.com/rapid7/conqueso
+- http://12factor.net/config
+- http://blog.doismellburning.co.uk/twelve-factor-config-misunderstandings-and-advice/
+- http://sigops.org/sosp/sosp15/current/2015-Monterey/printable/008-tang.pdf
+- http://lifeinvistaprint.com/techblog/configuration-management-git-consul/
 
 
 ## License
