@@ -15,14 +15,14 @@ curl http://localhost:3000/dev/A/B
 
 ## TODO
 - store data in git repository. 1 repo per app-environment (being on the same repo, branch, or different repos).
-- check file-seq, it's getting subdirs also
 - sort file strategy (by name?)
-- key definition in Schema
+- store data in YAML, useful for the pull-mode
 - return data in YAML
 - logging
 - security (authentication OAuth?)
 - backoffice to manage configuration
 - concurrency issues http://akazlou.com/posts/2015-12-12-small-experiment-git-ds.html
+- configurable repositories
 
 
 ## hierarchical keys
@@ -50,6 +50,9 @@ prd/oms/HH/EU/UK/default.edn
 
 
 ## NICE TO HAVE
+- key definition in Schema
+- git repo security
+- interesting hybrid model (push with gitconsul and pull REST)
 - metrics
 - schema coercion
 - stored files in EDN or YAML
