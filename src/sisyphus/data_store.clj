@@ -5,10 +5,27 @@
    [meta-merge.core :refer [meta-merge]]
    [clj-jgit.porcelain :as git]
    [sisyphus.config :as config]
-   ))
+   [clj-yaml.core :as yaml]))
 
 (def data-path "resources/data")
 (def repos-base-path "resources/data")
+
+(def default-extensions
+  "The default mapping from file extension to a [[ConfigParser]] for content from such a file.
+
+  Provides parsers for the \"yaml\" and \"edn\" extensions."
+  {"yaml" #(yaml/parse-string % true)
+   "yml" #(yaml/parse-string % true)
+   "edn"  edn/read-string
+   "clj" edn/read-string})
+
+(defn- get-parser [^String path extensions]
+  (let [dotx      (.lastIndexOf path ".")
+        extension (subs path (inc dotx))]
+    (or (get extensions extension)
+        (throw (ex-info "Unknown extension for configuration file."
+                        {:path       path
+                         :extensions extensions})))))
 
 (defn merge-config 
  [s f]
@@ -24,6 +41,7 @@
 
 (defn read-single-file 
   [file]
+  (let [parser (get-parser (.getName file) default-extensions)])
   (-> file
       slurp
       edn/read-string))
@@ -47,15 +65,16 @@
   (let [repo-dir-name (get-in config/defaults [:repositories env :dir])
         url (get-in config/defaults [:repositories env :url])
         dir-name (str repos-base-path "/" repo-dir-name)
-        dir (io/file dir-name)]
-    (if (not (.listFiles dir))
-      (git/git-clone-full url dir-name))
+        dir (io/file dir-name)
+        branch (get-in config/defaults [:repositories env :branch])]
+    (when (not (.listFiles dir))
+      (git/git-clone-full url dir-name)
+      (git/git-checkout (git/load-repo dir) branch))
     dir))
 
 (defn update-env-dir!
   [env dir]
-  (let [repo (git/load-repo dir)
-        branch (get-in config/defaults [:repositories env :branch])]
+  (let [repo (git/load-repo dir)]
     (git/git-pull repo)))
 
 (defn load-data

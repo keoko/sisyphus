@@ -5,4 +5,9 @@
 ** 2016/03/09 created project from duct template as it already set up the component structure
 ** 2016/03/10 created endpoint to get some basic configurations with schema validation, different from every environment
 ** 2016/03/11 played with EDN data structure validation with Schema. Not sure if Schema is the library I'm looking for.
+** 2016/03/12 reading facebook's configuration system paper... brutal!
+** 2016/03/13 reading facebook's configuration system paper... brutal!
+** 2016/03/14 playing with clojure git lib
+** 2016/03/15 playing with clojure git lib. mood :
+** 2016/03/16 retrieving files from git repository. very fluffy. getting weird login errors with docker gitlab image :
 
