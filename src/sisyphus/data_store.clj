@@ -5,7 +5,9 @@
    [meta-merge.core :refer [meta-merge]]
    [clj-jgit.porcelain :as git]
    [sisyphus.config :as config]
-   [clj-yaml.core :as yaml]))
+   [clj-yaml.core :as yaml]
+   [taoensso.timbre :as timbre
+    :refer (debug)]))
 
 (def data-path "resources/data")
 (def repos-base-path "resources/data")
@@ -82,5 +84,6 @@
   (let [dirs (clojure.string/split config-key #"/")
         base-dir (get-env-dir! env)        
         base-path (str data-path "/" (name env))]
+    (timbre/debug "loading data ...")
     (update-env-dir! env base-dir)
     (read-directories dirs base-dir)))

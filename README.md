@@ -13,12 +13,28 @@ curl http://localhost:3000/<environment>/<key>/<subkey>/...
 curl http://localhost:3000/dev/A/B
 
 
+## Features
+- different configuration by environment (development, staging, production).
+- hierarchical keys (e.g. A, A/B, A/B/C).
+- optional config validation.
+- configuration data stored in git repositories.
+
+## hierarchical keys
+
+prd/oms/default.edn
+prd/oms/payments.edn
+prd/oms/HH/default.edn
+prd/oms/HH/jobs.edn
+prd/oms/HH/EU/UK/default.edn
+
+
 ## TODO
 - return data in YAML
 - store data in YAML, useful for the pull-mode
+- filter extension files not available
 - sort file strategy (by name?)
-- concurrency issues http://akazlou.com/posts/2015-12-12-small-experiment-git-ds.html
-- logging
+- concurrency issues when updating git repo - http://akazlou.com/posts/2015-12-12-small-experiment-git-ds.html
+- server caching strategy: use atom, agent to store in-memory data structure
 - security (authentication OAuth?)
 - backoffice to manage configuration
 - configurable repositories
@@ -28,21 +44,34 @@ curl http://localhost:3000/dev/A/B
 
 
 ## NICE TO HAVE
-- use protocol to abstract data store
+### FEATURES
+- timbre logger added as a component. add log wrapper?
 - key definition in Schema
 - git repo security
 - interesting hybrid model (push with gitconsul and pull REST)
 - metrics
 - schema coercion
-- stored files in EDN or YAML
 - show historical data
-- yada: missing some documentation
 - unit/integration/acceptance testing
-- server caching strategy
 - client UI to manage and store data
 - caching strategy (HTTP HEAD, etc)
-- versioning: use git tags, or git hash numbers to retrieve specific versions. Not so sure, it's so useful, as you would usually be interested on the latest changes. If it's rarely used, it could be implemented just cloning a repo, just for that case. It would take more time.
+- versioning: use git tags, or git hash numbers to retrieve specific versions. Not so sure, it's so useful, as you would usually be interested on the latest changes. If it's rarely used, it could be implemented just cloning a repo, just for that case. It would take more time to load, but it's a tradeoff.
+- use jail component to evaluate clojure schema files like clojail.
+
+### CLOJURE
+- use protocol to abstract data store
+- yada not used, missing documentation
 - Datomic as data store.
+- cljx for validation in server and client
+
+### Emacs
+- bind mac copy, paste keys
+- block selection
+- magit
+- clj-refactor
+- how to autocomplete in emacs (autocomplete)
+- how to jump to clj functions (imenu)
+
 
 ## DOUBTS
 - how do I push changes to remote repo with clj-jgit?
@@ -57,32 +86,6 @@ curl http://localhost:3000/dev/A/B
 - does it make sense to expose API to fine grained keys?
 - how to change configuration? git clients? special UI?
 - can we build UI from schema definition?
-
-
-
-
-## hierarchical keys
-
-prd/oms/default.edn
-prd/oms/payments.edn
-prd/oms/HH/default.edn
-prd/oms/HH/jobs.edn
-prd/oms/HH/EU/UK/default.edn
-
-
-## Emacs
-- bind mac copy, paste keys
-- block selection
-- magit
-- clj-refactor
-- how to autocomplete in emacs (autocomplete)
-- how to jump to clj functions (imenu)
-
-
-## Features
-- different configuration by environment (development, staging, production).
-- hierarchical keys (e.g. A, A/B, A/B/C).
-- optional config validation.
 
 
 ## Links
