@@ -8,10 +8,18 @@
 
 (timbre/set-level! :debug)
 
+
+(defn log-output-format
+  ([data] 
+   (log-output-format nil data))
+  ([_ {:keys [timestamp_ msg_]}]
+   (str @timestamp_ ": " (force  msg_))))
+
 (defn add-logger
   []
   (timbre/merge-config!
-   {:appenders {:spit (appenders/spit-appender {:fname "/tmp/my-file.log"})}}))
+   {:appenders {:spit (appenders/spit-appender {:fname "/tmp/my-file.log"})}
+    :output-fn log-output-format}))
 
 
 (defn config-endpoint
