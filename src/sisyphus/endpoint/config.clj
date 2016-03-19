@@ -36,7 +36,7 @@
                     (if (or true config (validate-schema schema config))
                       {:status 200
                        :headers {"Content-Type" "text/html; charset=utf-8"}
-                       :body (str config)}
+                       :body config}
              
                       {:status 404
                        :headers {"Content-Type" "text/html; charset=utf-8"}

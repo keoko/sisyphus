@@ -6,10 +6,12 @@
             [meta-merge.core :refer [meta-merge]]
             [ring.component.jetty :refer [jetty-server]]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
+            [ring.middleware.format :refer [wrap-restful-format]]
             [sisyphus.endpoint.config :refer [config-endpoint]]))
 
 (def base-config
-  {:app {:middleware [[wrap-not-found :not-found]
+  {:app {:middleware [wrap-restful-format
+                      [wrap-not-found :not-found]
                       [wrap-defaults :defaults]]
          :not-found  "Resource Not Found"
          :defaults   (meta-merge api-defaults {})}})

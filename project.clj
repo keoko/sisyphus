@@ -15,7 +15,7 @@
                  [prismatic/schema "1.0.5"]
                  [clj-yaml "0.4.0"]
                  [com.taoensso/timbre "4.3.1"]
-                 ]
+                 [ring-middleware-format "0.7.0"]]
   :plugins [[lein-environ "1.0.2"]
             [lein-gen "0.2.2"]]
   :generators [[duct/generators "0.5.8"]]
