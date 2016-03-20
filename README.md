@@ -29,10 +29,6 @@ prd/oms/HH/EU/UK/default.edn
 
 
 ## TODO
-- return data in YAML
-- store data in YAML, useful for the pull-mode
-- filter extension files not available
-- sort file strategy (by name?)
 - concurrency issues when updating git repo - http://akazlou.com/posts/2015-12-12-small-experiment-git-ds.html
 - server caching strategy: use atom, agent to store in-memory data structure
 - security (authentication OAuth?)
@@ -45,6 +41,8 @@ prd/oms/HH/EU/UK/default.edn
 
 ## NICE TO HAVE
 ### FEATURES
+- sort file strategy (by name?)
+- filter extension files not available
 - timbre logger added as a component. add log wrapper?
 - key definition in Schema
 - git repo security

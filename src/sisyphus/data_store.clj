@@ -43,10 +43,10 @@
 
 (defn read-single-file 
   [file]
-  (let [parser (get-parser (.getName file) default-extensions)])
-  (-> file
-      slurp
-      edn/read-string))
+  (let [parser (get-parser (.getName file) default-extensions)]
+    (-> file
+        slurp
+        parser)))
 
 (defn read-directory
   [dir]
