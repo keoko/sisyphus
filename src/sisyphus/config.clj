@@ -3,6 +3,7 @@
 
 (def defaults
   ^:displace {:http {:port 3000}
+              :scheduler {}
               :repositories 
               {
                :prd {
