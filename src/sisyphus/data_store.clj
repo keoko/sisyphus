@@ -7,8 +7,7 @@
    [taoensso.timbre :as timbre
     :refer (debug)]))
 
-(def data-path "resources/data")
-(def repos-base-path "resources/data")
+(def data-path "/tmp/")
 
 (def default-extensions
   "The default mapping from file extension to a [[ConfigParser]] for content from such a file.
@@ -19,7 +18,8 @@
    "edn"  edn/read-string
    "clj" edn/read-string})
 
-(defn- get-parser [^String path extensions]
+(defn- get-parser 
+  [^String path extensions]
   (let [dotx      (.lastIndexOf path ".")
         extension (subs path (inc dotx))]
     (or (get extensions extension)
@@ -48,7 +48,9 @@
 
 (defn read-directory
   [dir]
-  (let [files (filter #(.isFile %) (.listFiles dir))]
+  (let [files (->> (.listFiles dir) 
+                  (filter #(.isFile %))
+                  (sort-by #(.getName %)))]
     files
     (merge-config files read-single-file)))
 
@@ -62,12 +64,12 @@
 
 (defn get-base-dir
   [env]
-  (let [dir-name (str data-path "/" env)]
+  (let [dir-name (str data-path "/app1-" (name env))]
     (io/file dir-name)))
 
 (defn load-data
   [config-key env]
   (let [dirs (clojure.string/split config-key #"/")
         base-dir (get-base-dir env)]
-    (timbre/debug "loading data ...")
+    (timbre/debug (str  "loading data ... " env))
     (read-directories dirs base-dir)))

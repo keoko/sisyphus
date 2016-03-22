@@ -29,31 +29,34 @@ prd/oms/HH/EU/UK/default.edn
 
 
 ## TODO
-- concurrency issues when updating git repo - http://akazlou.com/posts/2015-12-12-small-experiment-git-ds.html
 - server caching strategy: use atom, agent to store in-memory data structure
-- security (authentication OAuth?)
+- notify when a file is updated to the atom 
+- configurable repositories (do we store them in git?) every X minutes update the conf file
 - backoffice to manage configuration
-- configurable repositories
+- security (authentication OAuth?) check CMS TW
+
 
 ## CURRENT ISSUES
+- handle errors on updating repos
 - if the branch does not exist, no exception is thrown
+- git merging strategies fail when repo is already created :(
 
 
 ## NICE TO HAVE
 ### FEATURES
-- sort file strategy (by name?)
+- on re-loading app, remove directories and start clean
 - filter extension files not available
 - timbre logger added as a component. add log wrapper?
 - key definition in Schema
-- git repo security
+- git repo security (credentials)
 - interesting hybrid model (push with gitconsul and pull REST)
 - metrics
 - schema coercion
 - show historical data
 - unit/integration/acceptance testing
 - client UI to manage and store data
-- caching strategy (HTTP HEAD, etc)
-- versioning: use git tags, or git hash numbers to retrieve specific versions. Not so sure, it's so useful, as you would usually be interested on the latest changes. If it's rarely used, it could be implemented just cloning a repo, just for that case. It would take more time to load, but it's a tradeoff.
+- client caching strategy (HTTP HEAD, etc)
+- versioning: use git tags, or git hash numbers to retrieve specific versions. Not so sure, whether it's so useful, as you would usually be interested on the latest changes. If it's rarely used, it could be implemented just cloning a repo, just for that case. It would take more time to load, but it's a tradeoff.
 - use jail component to evaluate clojure schema files like clojail.
 
 ### CLOJURE
@@ -72,6 +75,9 @@ prd/oms/HH/EU/UK/default.edn
 
 
 ## DOUBTS
+- 1 channel per repo?
+- how to communicate changes to atoms? via fs-watch? or via channel message?
+- 1 atom per repo? vs 1 big repo?
 - how do I push changes to remote repo with clj-jgit?
 - how to validate from local env? using cljx?
 - 1 repo per environment vs all environments in 1 repo?
@@ -96,6 +102,7 @@ prd/oms/HH/EU/UK/default.edn
 - http://blog.doismellburning.co.uk/twelve-factor-config-misunderstandings-and-advice/
 - http://sigops.org/sosp/sosp15/current/2015-Monterey/printable/008-tang.pdf
 - http://lifeinvistaprint.com/techblog/configuration-management-git-consul/
+- concurrency issues when updating git repo - http://akazlou.com/posts/2015-12-12-small-experiment-git-ds.html
 
 
 ## License
