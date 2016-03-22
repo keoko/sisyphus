@@ -3,8 +3,6 @@
    [clojure.java.io :as io]
    [clojure.edn :as edn]
    [meta-merge.core :refer [meta-merge]]
-   [clj-jgit.porcelain :as git]
-   [sisyphus.config :as config]
    [clj-yaml.core :as yaml]
    [taoensso.timbre :as timbre
     :refer (debug)]))
@@ -62,28 +60,14 @@
     (merge-config get-existing-dirs read-directory)))
 
 
-(defn get-env-dir!
+(defn get-base-dir
   [env]
-  (let [repo-dir-name (get-in config/defaults [:repositories env :dir])
-        url (get-in config/defaults [:repositories env :url])
-        dir-name (str repos-base-path "/" repo-dir-name)
-        dir (io/file dir-name)
-        branch (get-in config/defaults [:repositories env :branch])]
-    (when (not (.listFiles dir))
-      (git/git-clone-full url dir-name)
-      (git/git-checkout (git/load-repo dir) branch))
-    dir))
-
-(defn update-env-dir!
-  [env dir]
-  (let [repo (git/load-repo dir)]
-    (git/git-pull repo)))
+  (let [dir-name (str data-path "/" env)]
+    (io/file dir-name)))
 
 (defn load-data
   [config-key env]
   (let [dirs (clojure.string/split config-key #"/")
-        base-dir (get-env-dir! env)        
-        base-path (str data-path "/" (name env))]
+        base-dir (get-base-dir env)]
     (timbre/debug "loading data ...")
-    (update-env-dir! env base-dir)
     (read-directories dirs base-dir)))

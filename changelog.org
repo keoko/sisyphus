@@ -12,4 +12,5 @@
 ** 2016/03/16 retrieving files from git repository. very fluffy. getting weird login errors with docker gitlab image.
 ** 2016/03/18 more on clj-jgit lib. no clue how git-pull vs git-fetch. trial-and-error mode.
 ** 2016/03/19 quite frustrated integrating timbre logger. main issue: lack of knowledge how exactly component lib works and lack of updated examples. emacs-tail-revert-mode a bit slow.
+** 2016/03/22 issues with clj-jgit when using strategy recursive resulted in: conflict
 

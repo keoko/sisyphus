@@ -5,14 +5,15 @@
             [chime :refer [chime-at]]
             [clj-time.core :as t]
             [clj-time.periodic :refer [periodic-seq]]
-            [clojure.core.async :as a :refer [<! go-loop]]))
+            [sisyphus.repository :as repo]))
+
 
 (defrecord SchedulerComponent [connection]
   component/Lifecycle
   (start [component]
-    (let [every-2-secs (rest (periodic-seq (t/now)
-                                           (-> 2 t/seconds)))
-          stop-scheduler (chime-at every-2-secs #(info (str "chiming at " %)))]
+    (let [every-10-secs (rest (periodic-seq (t/now)
+                                           (-> 10 t/seconds)))
+          stop-scheduler (chime-at every-10-secs #(repo/update-repos %))]
       (info "starting scheduler")
       (assoc component :stop-fn stop-scheduler)
       ))
