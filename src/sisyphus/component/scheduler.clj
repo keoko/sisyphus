@@ -15,12 +15,12 @@
                                            (-> 10 t/seconds)))
           stop-scheduler (chime-at every-10-secs #(repo/update-repos %))]
       (info "starting scheduler")
-      (assoc component :stop-fn stop-scheduler)
-      ))
+      (assoc component :stop-fn stop-scheduler)))
   (stop [component]
-    (let [stop-fn (:stop-fn component)]
+    (when-let [stop-fn (get component :stop-fn)]
       (info "stopping scheduler")
-      (stop-fn))))
+      (stop-fn))
+    (dissoc component :stop-fn)))
 
 (defn scheduler-component [connection]
   (->SchedulerComponent connection))
