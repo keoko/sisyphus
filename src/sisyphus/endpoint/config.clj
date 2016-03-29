@@ -1,7 +1,7 @@
 (ns sisyphus.endpoint.config
   (:require [compojure.core :refer :all]
             [sisyphus.schema :refer [build-schema validate-schema]]
-            [sisyphus.data-store :refer [load-data]]
+            [sisyphus.component.data-store :refer [load-data]]
             [taoensso.timbre :as timbre
              :refer (info)]
             [taoensso.timbre.appenders.core :as appenders]))
@@ -29,6 +29,7 @@
                 [env :<< keyword 
                  config-key :<< str]
                 (let [config (load-data config-key env)
+
                       schema (build-schema)]
                   (add-logger)
                   (info "endpoint config request")

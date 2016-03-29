@@ -1,0 +1,55 @@
+* Sisyphus presentation notes
+** What's Sisyphus?
+Platform to manage dynamic runtime configuration, ala Facebook's holistic configuration management platform. (https://research.facebook.com/publications/holistic-configuration-management-at-facebook/).
+
+** Why Sisyphus?
+The myth of Sisyphus
+YACS (Yet Another Configuration System)
+Groundhog day
+
+** Why?
+Interesting problem and good excuse to play with clojure.
+
+** Disclaimer
+It's not a replacement of our current configuration system.
+
+** Different meanings of configuration system
+environment configuration, feature flags/toggles/switches,
+*** TODO add Facebook definition
+
+** Examples of different configuration system
+provisioning: puppet, chef, ansible, saltstack, etc.
+environment configurations: 
+dynamic configuration: archaius, facebook's holistic configuration system & sysiphus ;)
+*** TODO Twitter's Decider? 
+
+** What problem it tries to solve
+runtime configuration system
+
+** Push model
+gitconsul
+
+** Pull model
+Pull: Archaius, Akamai
+
+** Hybrid models
+Hybrid: Facebook
+
+** Sisyphus features
+Hybrid push-pull model with git data store.
+hierarchical keys
+
+
+** Demo
+
+** Clojure libraries
+*** not yada, ring + compojure
+*** not datomic, git data store with clj-jgit
+*** not mount, component system
+*** not actor model, core-async to communicate between components
+*** logging with timbre
+*** scheduling with chime
+*** testing?
+
+** Links
+*** Facebook's holistic configuration system

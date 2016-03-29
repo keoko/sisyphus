@@ -1,11 +1,11 @@
-(ns sisyphus.data-store
-  (:require
-   [clojure.java.io :as io]
-   [clojure.edn :as edn]
-   [meta-merge.core :refer [meta-merge]]
-   [clj-yaml.core :as yaml]
-   [taoensso.timbre :as timbre
-    :refer (debug)]))
+(ns sisyphus.component.data-store
+  (:require [com.stuartsierra.component :as component]
+            [clojure.java.io :as io]
+            [clojure.edn :as edn]
+            [meta-merge.core :refer [meta-merge]]
+            [clj-yaml.core :as yaml]
+            [taoensso.timbre :as timbre
+             :refer (info)]))
 
 (def data-path "/tmp/")
 
@@ -17,6 +17,20 @@
    "yml" #(yaml/parse-string % true)
    "edn"  edn/read-string
    "clj" edn/read-string})
+
+
+(defrecord DataStoreComponent [connection]
+  component/Lifecycle
+  (start [component]
+    (let []
+      (info "starting data-store")
+      component))
+  (stop [component]
+    (info "stopping data-store")
+    component))
+
+(defn data-store-component [connection]
+  (->DataStoreComponent connection))
 
 (defn- get-parser 
   [^String path extensions]
@@ -73,3 +87,5 @@
         base-dir (get-base-dir env)]
     (timbre/debug (str  "loading data ... " env))
     (read-directories dirs base-dir)))
+
+

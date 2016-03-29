@@ -8,7 +8,8 @@
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [ring.middleware.format :refer [wrap-restful-format]]
             [sisyphus.endpoint.config :refer [config-endpoint]]
-            [sisyphus.component.scheduler :refer [scheduler-component]]))
+            [sisyphus.component.scheduler :refer [scheduler-component]]
+            [sisyphus.component.data-store :refer [data-store-component]]))
 
 (def base-config
   {:app {:middleware [wrap-restful-format
@@ -23,10 +24,12 @@
          :app  (handler-component (:app config))
          :http (jetty-server (:http config))
          :config (endpoint-component config-endpoint)
-         :scheduler (scheduler-component (:scheduler config)))
+         :scheduler (scheduler-component (:scheduler config))
+         :data-store (data-store-component (:data-store config)))
         
         (component/system-using
          {:http [:app]
           :app  [:config]
           :config []
-          :scheduler []}))))
+          :scheduler []
+          :data-store []}))))
