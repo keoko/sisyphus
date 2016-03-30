@@ -1,5 +1,6 @@
 (ns sisyphus.system
   (:require [com.stuartsierra.component :as component]
+            [clojure.core.async :as async]
             [duct.component.endpoint :refer [endpoint-component]]
             [duct.component.handler :refer [handler-component]]
             [duct.middleware.not-found :refer [wrap-not-found]]
@@ -19,13 +20,14 @@
          :defaults   (meta-merge api-defaults {})}})
 
 (defn new-system [config]
-  (let [config (meta-merge base-config config)]
+  (let [config (meta-merge base-config config)
+        data-store-chan (async/chan 10)]
     (-> (component/system-map
          :app  (handler-component (:app config))
          :http (jetty-server (:http config))
          :config (endpoint-component config-endpoint)
-         :scheduler (scheduler-component (:scheduler config))
-         :data-store (data-store-component (:data-store config)))
+         :scheduler (scheduler-component (:scheduler config) data-store-chan)
+         :data-store (data-store-component (:data-store config) data-store-chan))
         
         (component/system-using
          {:http [:app]

@@ -21,8 +21,9 @@ curl http://localhost:3000/dev/A/B
 
 
 ## TODO
-- server caching strategy: use atom, agent to store in-memory data structure
 - notify when a file is updated to the atom 
+- send git hash number and repo keyword
+- server caching strategy: use atom, agent to store in-memory data structure
 - configurable repositories (do we store them in git?) every X minutes update the conf file
 - backoffice to manage configuration
 - security (authentication OAuth?) check CMS TW
@@ -38,7 +39,7 @@ curl http://localhost:3000/dev/A/B
 ### FEATURES
 - on re-loading app, remove directories and start clean
 - filter extension files not available
-- timbre logger added as a component. add log wrapper?
+- timbre logger added as a component. add log wrapper? look at pepa project
 - key definition in Schema
 - git repo security (credentials)
 - interesting hybrid model (push with gitconsul and pull REST)

@@ -5,15 +5,20 @@
             [chime :refer [chime-at]]
             [clj-time.core :as t]
             [clj-time.periodic :refer [periodic-seq]]
-            [sisyphus.repository :as repo]))
+            [sisyphus.repository :as repo]
+            [clojure.core.async :as async :refer [>!!]]))
 
 
-(defrecord SchedulerComponent [connection]
+(defrecord SchedulerComponent [connection chan]
   component/Lifecycle
   (start [component]
     (let [every-10-secs (rest (periodic-seq (t/now)
                                            (-> 10 t/seconds)))
-          stop-scheduler (chime-at every-10-secs #(repo/update-repos %))]
+          stop-scheduler (chime-at every-10-secs (fn [time] 
+                                                   (doall
+                                                    (map
+                                                     (fn [x] (>!! chan x))
+                                                     (repo/update-repos time)))))]
       (info "starting scheduler")
       (assoc component :stop-fn stop-scheduler)))
   (stop [component]
@@ -22,8 +27,8 @@
       (stop-fn))
     (dissoc component :stop-fn)))
 
-(defn scheduler-component [connection]
-  (->SchedulerComponent connection))
+(defn scheduler-component [connection chan]
+  (->SchedulerComponent connection chan))
 
 
 

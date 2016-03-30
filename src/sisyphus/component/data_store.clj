@@ -5,7 +5,8 @@
             [meta-merge.core :refer [meta-merge]]
             [clj-yaml.core :as yaml]
             [taoensso.timbre :as timbre
-             :refer (info)]))
+             :refer (info)]
+            [clojure.core.async :as async :refer [go-loop <!!]]))
 
 (def data-path "/tmp/")
 
@@ -18,19 +19,36 @@
    "edn"  edn/read-string
    "clj" edn/read-string})
 
+(def data-store (atom {}))
 
-(defrecord DataStoreComponent [connection]
+
+(defn rebuild-data-store
+  []
+  (swap! data-store (fn [x] {:prd "updated prd config"})))
+
+
+(defn watch-files
+  [data-store-chan]
+  (go-loop []
+    (let [msg (<!! data-store-chan)]
+      (info (str "msg:" msg))
+      (rebuild-data-store)
+      (recur))))
+
+
+(defrecord DataStoreComponent [connection chan]
   component/Lifecycle
   (start [component]
     (let []
       (info "starting data-store")
+      (watch-files chan)
       component))
   (stop [component]
     (info "stopping data-store")
     component))
 
-(defn data-store-component [connection]
-  (->DataStoreComponent connection))
+(defn data-store-component [connection chan]
+  (->DataStoreComponent connection chan))
 
 (defn- get-parser 
   [^String path extensions]
@@ -87,5 +105,3 @@
         base-dir (get-base-dir env)]
     (timbre/debug (str  "loading data ... " env))
     (read-directories dirs base-dir)))
-
-

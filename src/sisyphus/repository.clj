@@ -11,6 +11,14 @@
 
 (def repos (get config/defaults :repositories))
 
+(defn get-repo-hash
+  [repo]
+  (-> repo
+      (.getRepository)
+      (.resolve "HEAD^{tree}")
+      (.getName)))
+
+
 (defn clone-repo!
   [dir url branch]
   (let [canonical-dir (.getCanonicalPath dir)]
@@ -34,11 +42,11 @@
     (pr (str "dir:" dir (.isDirectory repo-dir)))
     (if (.isDirectory repo-dir)
       (pull-repo! repo-dir)
-      (clone-repo! repo-dir url branch))))
+      (clone-repo! repo-dir url branch))
+    [branch (get-repo-hash (git/load-repo repo-dir))]))
 
  
 (defn update-repos
   [time]
   (info "updating repo")
   (doall (map update-repo repos)))
-
