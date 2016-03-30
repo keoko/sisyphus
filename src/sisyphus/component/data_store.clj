@@ -23,7 +23,8 @@
    "clj" edn/read-string})
 
 
-(declare watch-files)
+(declare watch-files
+         load-variants)
 
 (defrecord DataStoreComponent [connection chan]
   component/Lifecycle
@@ -88,26 +89,61 @@
   (let [dir-name (str data-path "/app1-" (name env))]
     (io/file dir-name)))
 
-(defn load-data
+
+(defn load-data-old
   [config-key env]
   (let [dirs (clojure.string/split config-key #"/")
         base-dir (get-base-dir env)]
     (timbre/debug (str  "loading data ... " env))
     (read-directories dirs base-dir)))
 
+
+;; new ones
+
+(defn load-data
+  [dir]
+  (let [files (->> (.listFiles dir) 
+                  (filter #(.isFile %))
+                  (sort-by #(.getName %)))]
+    (apply merge (map #(hash-map (keyword (.getName %)) (read-single-file %)) files))))
+
+
+(defn load-dir
+ [dir]
+ {:data (load-data dir)
+  :variants (load-variants dir)})
+
+
+
+(defn load-variants
+  [dir]
+  (let [dirs (->> (.listFiles dir) 
+                  (filter #(.isDirectory %))
+                  (remove #(re-matches #"^\..*" (.getName %))))]
+    (apply merge (map #(hash-map (keyword (.getName %)) (load-dir %)) dirs))))
+
+
+(defn load-all-data
+  [profile]
+  (let [base-dir (get-base-dir profile)]
+    (timbre/debug (str "loading data... " profile))
+    (load-dir base-dir)))
+
+
 (defn rebuild-data-store
-  [env version]
-  (info (str "env:" env ", version:" version))
-  (if (get (deref data-store) env)
-    (when (not= version  (get-in (deref data-store) [env :version]))
+  [profile version]
+  (info (str "profile:" profile ", version:" version))
+  (if (get (deref data-store) profile)
+    (when (not= version  (get-in (deref data-store) [profile :version]))
       (do
-        (info (str "swapping data store ..." version " ---- "(get-in (deref data-store) [env :version])))
-        (swap! data-store assoc env {:version version
-                                     :data (load-data "" env)})))
+        (info (str "swapping data store ..." version " ---- "(get-in (deref data-store) [profile :version])))
+        (swap! data-store assoc profile (into {:version version}
+                                              (load-all-data profile)))))
     (do
       (info "repo not found")
-      (swap! data-store assoc env {:version version
-                                   :data (load-data "" env)}))))
+      (swap! data-store assoc profile (into  {:version version}
+                                             (load-all-data profile))))))
+
 
 (defn watch-files
   [data-store-chan]
@@ -118,7 +154,25 @@
       (recur))))
 
 
+(defn build-variant-data-keys
+  [profile variant]
+  (let  [variants (map #(keyword %) (clojure.string/split variant #"/"))]
+    (for [i (range 1 (inc (count variants)))]
+      (-> (interpose :variants (take i variants))
+           (conj :variants)
+           (conj profile)
+           (concat [:data])))))
+
+
+(defn build-data-keys
+  [profile variant]
+  (conj
+   (build-variant-data-keys profile variant)
+   [profile :data]))
+
 
 (defn get-data
-  [config-key env]
-  (get-in (deref data-store) [env :data]))
+  [profile variant]
+  (let [keys (build-data-keys profile variant)
+        variants-data (map #(get-in @data-store %) keys)]
+    (apply meta-merge (vals (apply meta-merge variants-data)))))

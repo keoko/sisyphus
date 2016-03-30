@@ -8,9 +8,9 @@ lein run
 
 ## Usage
 
-curl http://localhost:3000/<environment>/<key>/<subkey>/...
+curl http://localhost:3000/<profile>/<variant>/<sub-variant>/...
 
-curl http://localhost:3000/dev/A/B
+curl http://localhost:3000/app1-prd/tenant1/brand2
 
 
 ## Features
@@ -21,10 +21,13 @@ curl http://localhost:3000/dev/A/B
 
 
 ## TODO
-- hierarchical keys in atom
-- scheduler stops updating the repo
-- clean up naming: branch, version, repo, environment
+- change deref
+- base-dir is hardcoded
+- validation before storing data into atom
+- if invalid validation, store status and status description, return HTTP header with error in case of it's invalid
+- send profile version as etag
 - configurable repositories (do we store them in git?) every X minutes update the conf file
+- clean up naming: branch, version, repo, environment
 - backoffice to manage configuration
 - security (authentication OAuth?) check CMS TW
 
@@ -44,6 +47,7 @@ curl http://localhost:3000/dev/A/B
 - git repo security (credentials)
 - interesting hybrid model (push with gitconsul and pull REST)
 - metrics
+- swagger
 - schema coercion
 - show historical data
 - unit/integration/acceptance testing
@@ -56,7 +60,8 @@ curl http://localhost:3000/dev/A/B
 - use protocol to abstract data store
 - yada not used, missing documentation
 - Datomic as data store.
-- cljx for validation in server and client
+- cljx for validation in server and client with boot
+- how to autoreload clojure system after a change?
 
 ### Emacs
 - block selection
@@ -65,20 +70,20 @@ curl http://localhost:3000/dev/A/B
 
 
 ## DOUBTS
+- super big atom? performance issues?
+- different apps + variants + local env's -> memory consumption?
+- does it make sense to expose API to fine grained keys? (e.g. jobs conf, topic2, topic1?
 - communication between endpoint and data-store through channel? weird.
 - 1 channel per repo?
 - how to communicate changes to atoms? via fs-watch? or via channel message?
-- 1 atom per repo? vs 1 big repo?
 - how do I push changes to remote repo with clj-jgit?
 - how to validate from local env? using cljx?
 - 1 repo per environment vs all environments in 1 repo?
-- how to pull files in git repo wihout concurrency issues? 1 scheduled job
+- 1 atom per repo? vs 1 big repo?
 - how to debug web app - logging?
-- how to autoreload clojure system after a change?
 - how to sync config and schema?
 - how to store the general config? replicated in all branches? how to keep them sync?
 - how flexible are hierarchical keys model?
-- does it make sense to expose API to fine grained keys? (e.g. jobs conf, topic2, topic1?
 - how to change configuration? git clients? special UI?
 - can we build UI from schema definition?
 
