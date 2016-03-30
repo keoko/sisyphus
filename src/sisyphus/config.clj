@@ -15,7 +15,7 @@
      :url  "http://git@192.168.99.100:10080/root/app2.git" 
      :branch "stg"
      :dir "/tmp/app1-stg"
-     :env :prd}
+     :env :stg}
 ]})
 
 

@@ -18,7 +18,7 @@
                                                    (doall
                                                     (map
                                                      (fn [x] (>!! chan x))
-                                                     (repo/update-repos time)))))]
+                                                     (doall (repo/update-repos time))))))]
       (info "starting scheduler")
       (assoc component :stop-fn stop-scheduler)))
   (stop [component]

@@ -36,14 +36,15 @@
 
 
 (defn update-repo
-  [{:keys [url branch dir]}]
+  [{:keys [env url branch dir]}]
   ;; get repo dir
   (let [repo-dir (io/file dir)]
-    (pr (str "dir:" dir (.isDirectory repo-dir)))
+    (info (str "dir:" dir  "isdir?:" (.isDirectory repo-dir) ", env:" env))
     (if (.isDirectory repo-dir)
       (pull-repo! repo-dir)
       (clone-repo! repo-dir url branch))
-    [branch (get-repo-hash (git/load-repo repo-dir))]))
+    (info (str "vec:" env))
+    [env (get-repo-hash (git/load-repo repo-dir))]))
 
  
 (defn update-repos

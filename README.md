@@ -21,9 +21,9 @@ curl http://localhost:3000/dev/A/B
 
 
 ## TODO
-- notify when a file is updated to the atom 
-- send git hash number and repo keyword
-- server caching strategy: use atom, agent to store in-memory data structure
+- hierarchical keys in atom
+- scheduler stops updating the repo
+- clean up naming: branch, version, repo, environment
 - configurable repositories (do we store them in git?) every X minutes update the conf file
 - backoffice to manage configuration
 - security (authentication OAuth?) check CMS TW

@@ -10,6 +10,9 @@
 
 (def data-path "/tmp/")
 
+(def data-store (atom {}))
+
+
 (def default-extensions
   "The default mapping from file extension to a [[ConfigParser]] for content from such a file.
 
@@ -19,22 +22,8 @@
    "edn"  edn/read-string
    "clj" edn/read-string})
 
-(def data-store (atom {}))
 
-
-(defn rebuild-data-store
-  []
-  (swap! data-store (fn [x] {:prd "updated prd config"})))
-
-
-(defn watch-files
-  [data-store-chan]
-  (go-loop []
-    (let [msg (<!! data-store-chan)]
-      (info (str "msg:" msg))
-      (rebuild-data-store)
-      (recur))))
-
+(declare watch-files)
 
 (defrecord DataStoreComponent [connection chan]
   component/Lifecycle
@@ -105,3 +94,31 @@
         base-dir (get-base-dir env)]
     (timbre/debug (str  "loading data ... " env))
     (read-directories dirs base-dir)))
+
+(defn rebuild-data-store
+  [env version]
+  (info (str "env:" env ", version:" version))
+  (if (get (deref data-store) env)
+    (when (not= version  (get-in (deref data-store) [env :version]))
+      (do
+        (info (str "swapping data store ..." version " ---- "(get-in (deref data-store) [env :version])))
+        (swap! data-store assoc env {:version version
+                                     :data (load-data "" env)})))
+    (do
+      (info "repo not found")
+      (swap! data-store assoc env {:version version
+                                   :data (load-data "" env)}))))
+
+(defn watch-files
+  [data-store-chan]
+  (go-loop []
+    (let [[repo-name repo-version] (<!! data-store-chan)]
+      (info (str "msg:" repo-name repo-version))
+      (rebuild-data-store repo-name repo-version)
+      (recur))))
+
+
+
+(defn get-data
+  [config-key env]
+  (get-in (deref data-store) [env :data]))
