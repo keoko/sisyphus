@@ -108,6 +108,15 @@
     (apply merge (map #(hash-map (keyword (.getName %)) (read-single-file %)) files))))
 
 
+#_(validate-schema schema config)
+;;                    schema (build-schema)
+
+(defn validate-data
+  [profile dir]
+  (swap! data-store update-in [profile] #(merge % {:valid? true
+                                                   :valid-message ""})))
+
+
 (defn load-dir
  [dir]
  {:data (load-data dir)
@@ -138,11 +147,13 @@
       (do
         (info (str "swapping data store ..." version " ---- "(get-in @data-store [profile :version])))
         (swap! data-store assoc profile (into {:version version}
-                                              (load-all-data profile)))))
+                                              (load-all-data profile)))
+        (validate-data profile "")))
     (do
       (info "repo not found")
       (swap! data-store assoc profile (into  {:version version}
-                                             (load-all-data profile))))))
+                                             (load-all-data profile)))
+      (validate-data profile ""))))
 
 
 (defn watch-files
@@ -177,4 +188,8 @@
   (let [keys (build-data-keys profile variant)
         variants-data (map #(get-in @data-store %) keys)]
     {:etag (get-in @data-store [profile :version])
+     :valid?  (get-in @data-store [profile :valid?] true)
+     :valid-message (get-in @data-store [profile :valid-message])
      :config (apply meta-merge (vals (apply meta-merge variants-data)))}))
+
+

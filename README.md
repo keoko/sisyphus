@@ -27,6 +27,7 @@ curl http://localhost:3000/app1-prd/tenant1/brand2
 - if invalid validation, store status and status description, return HTTP header with error in case of it's invalid
 - configurable repositories (do we store them in git?) every X minutes update the conf file
 - clean up naming: branch, version, repo, environment
+- clean logger data in a component?
 - backoffice to manage configuration
 - security (authentication OAuth?) check CMS TW
 

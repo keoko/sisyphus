@@ -1,6 +1,5 @@
 (ns sisyphus.endpoint.config
   (:require [compojure.core :refer :all]
-            [sisyphus.schema :refer [build-schema validate-schema]]
             [sisyphus.component.data-store :refer [get-data]]
             [taoensso.timbre :as timbre
              :refer (info)]
@@ -28,12 +27,11 @@
            (GET ["/:env/:config-key" :config-key #".*"] 
                 [env :<< keyword 
                  config-key :<< str]
-                (let [{:keys [config etag]} (get-data env config-key)
-                      schema (build-schema)]
+                (let [{:keys [config etag valid? valid-message]} (get-data env config-key)]
                   (add-logger)
                   (info "endpoint config request")
                   (try                    
-                    (if (or true config (validate-schema schema config))
+                    (if valid?
                       {:status 200
                        :headers {"Content-Type" "text/html; charset=utf-8"
                                  "etag" etag}
@@ -41,7 +39,7 @@
              
                       {:status 404
                        :headers {"Content-Type" "text/html; charset=utf-8"}
-                       :body (str  "not found or invalid.")})
+                       :body valid-message})
                     (catch Exception e 
                       {:status 500
                        :headers {"Content-Type" "text/html; charset=utf-8"}
