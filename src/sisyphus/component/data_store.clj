@@ -86,7 +86,7 @@
 
 (defn get-base-dir
   [env]
-  (let [dir-name (str data-path "/app1-" (name env))]
+  (let [dir-name (str data-path "/" (name env))]
     (io/file dir-name)))
 
 
@@ -133,10 +133,10 @@
 (defn rebuild-data-store
   [profile version]
   (info (str "profile:" profile ", version:" version))
-  (if (get (deref data-store) profile)
-    (when (not= version  (get-in (deref data-store) [profile :version]))
+  (if (get  @data-store profile)
+    (when (not= version  (get-in  @data-store [profile :version]))
       (do
-        (info (str "swapping data store ..." version " ---- "(get-in (deref data-store) [profile :version])))
+        (info (str "swapping data store ..." version " ---- "(get-in @data-store [profile :version])))
         (swap! data-store assoc profile (into {:version version}
                                               (load-all-data profile)))))
     (do
@@ -156,7 +156,7 @@
 
 (defn build-variant-data-keys
   [profile variant]
-  (let  [variants (map #(keyword %) (clojure.string/split variant #"/"))]
+   (let  [variants (map #(keyword %) (clojure.string/split variant #"/"))]
     (for [i (range 1 (inc (count variants)))]
       (-> (interpose :variants (take i variants))
            (conj :variants)
@@ -173,6 +173,7 @@
 
 (defn get-data
   [profile variant]
+  (info (str "1profile:" profile ",variant:" variant))
   (let [keys (build-data-keys profile variant)
         variants-data (map #(get-in @data-store %) keys)]
     (apply meta-merge (vals (apply meta-merge variants-data)))))

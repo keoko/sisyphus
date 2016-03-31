@@ -21,7 +21,6 @@ curl http://localhost:3000/app1-prd/tenant1/brand2
 
 
 ## TODO
-- change deref
 - base-dir is hardcoded
 - validation before storing data into atom
 - if invalid validation, store status and status description, return HTTP header with error in case of it's invalid

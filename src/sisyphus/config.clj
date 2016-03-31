@@ -7,7 +7,7 @@
    :repositories 
    [{
      :url  "http://git@192.168.99.100:10080/root/app2.git" 
-     :env :prd
+     :env :app1-prd
      :branch "master"
      :dir "/tmp/app1-prd"
      }
@@ -15,7 +15,7 @@
      :url  "http://git@192.168.99.100:10080/root/app2.git" 
      :branch "stg"
      :dir "/tmp/app1-stg"
-     :env :stg}
+     :env :app1-stg}
 ]})
 
 

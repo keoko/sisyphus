@@ -28,8 +28,7 @@
            (GET ["/:env/:config-key" :config-key #".*"] 
                 [env :<< keyword 
                  config-key :<< str]
-                (let [config (get-data config-key env)
-
+                (let [config (get-data env config-key)
                       schema (build-schema)]
                   (add-logger)
                   (info "endpoint config request")
