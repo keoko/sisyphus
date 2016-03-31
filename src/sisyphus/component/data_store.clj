@@ -173,7 +173,8 @@
 
 (defn get-data
   [profile variant]
-  (info (str "1profile:" profile ",variant:" variant))
+  (info (str "profile:" profile ",variant:" variant))
   (let [keys (build-data-keys profile variant)
         variants-data (map #(get-in @data-store %) keys)]
-    (apply meta-merge (vals (apply meta-merge variants-data)))))
+    {:etag (get-in @data-store [profile :version])
+     :config (apply meta-merge (vals (apply meta-merge variants-data)))}))

@@ -28,14 +28,15 @@
            (GET ["/:env/:config-key" :config-key #".*"] 
                 [env :<< keyword 
                  config-key :<< str]
-                (let [config (get-data env config-key)
+                (let [{:keys [config etag]} (get-data env config-key)
                       schema (build-schema)]
                   (add-logger)
                   (info "endpoint config request")
                   (try                    
                     (if (or true config (validate-schema schema config))
                       {:status 200
-                       :headers {"Content-Type" "text/html; charset=utf-8"}
+                       :headers {"Content-Type" "text/html; charset=utf-8"
+                                 "etag" etag}
                        :body config}
              
                       {:status 404
