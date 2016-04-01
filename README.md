@@ -21,15 +21,23 @@ curl http://localhost:3000/app1-prd/tenant1/brand2
 
 
 ## TODO
-- base-dir is hardcoded
-- send profile version as etag
-- validation before storing data into atom
-- if invalid validation, store status and status description, return HTTP header with error in case of it's invalid
-- configurable repositories (do we store them in git?) every X minutes update the conf file
+- validate config
+- move base-dir and "repositories" profiles to conf
 - clean up naming: branch, version, repo, environment
 - clean logger data in a component?
 - backoffice to manage configuration
-- security (authentication OAuth?) check CMS TW
+
+## Backoffice
+- profiles list
+- variants list per profile
+- add new variant
+- add new group
+- delete group
+- update group
+- use re-frame
+- use https://ace.c9.io/
+- edit files
+- display inheritance?
 
 
 ## CURRENT ISSUES
@@ -40,6 +48,8 @@ curl http://localhost:3000/app1-prd/tenant1/brand2
 
 ## NICE TO HAVE
 ### FEATURES
+- security (authentication OAuth?) check CMS TW
+- configurable repositories (do we store them in git?) every X minutes update the conf file
 - on re-loading app, remove directories and start clean
 - filter extension files not available
 - timbre logger added as a component. add log wrapper? look at pepa project

@@ -1,5 +1,6 @@
 (ns sisyphus.component.data-store
-  (:require [com.stuartsierra.component :as component]
+  (:require [sisyphus.schema :refer [validate-schema load-schemas]]
+            [com.stuartsierra.component :as component]
             [clojure.java.io :as io]
             [clojure.edn :as edn]
             [meta-merge.core :refer [meta-merge]]
@@ -108,14 +109,6 @@
     (apply merge (map #(hash-map (keyword (.getName %)) (read-single-file %)) files))))
 
 
-#_(validate-schema schema config)
-;;                    schema (build-schema)
-
-(defn validate-data
-  [profile dir]
-  (swap! data-store update-in [profile] #(merge % {:valid? true
-                                                   :valid-message ""})))
-
 
 (defn load-dir
  [dir]
@@ -139,21 +132,58 @@
     (load-dir base-dir)))
 
 
+#_(validate-schema schema config)
+;;                    schema (build-schema)
+
+
+
+(defn validate-config-group
+  [schema config-group]
+  (when schema
+    (try
+      (validate-schema schema config-group)
+      nil
+      (catch Exception e (.getMessage e)))))
+
+;; TODO: variants
+(defn validate-data
+  [schemas data]
+  (let [validations (map (fn [[k v]] (validate-config-group (get schemas k) v)) (:data data))]
+    (into data
+          {:valid? (every? nil? validations)
+           :valid-message (clojure.string/join #"\n" validations)})))
+
+
+
+(defn validate-all-data
+  [profile data]
+  (let [schemas (load-schemas)]
+    (timbre/debug (str "validating data..." profile data schemas))
+    (validate-data schemas data)))
+
+
+(defn load-and-validate-all-data!
+  [profile version]
+
+  (let [data (load-all-data profile)]
+    (swap! data-store 
+           assoc 
+           profile 
+           (into {:version version}
+                 (validate-all-data profile data)))
+    (validate-all-data profile data)))
+
+
 (defn rebuild-data-store
   [profile version]
-  (info (str "profile:" profile ", version:" version))
-  (if (get  @data-store profile)
-    (when (not= version  (get-in  @data-store [profile :version]))
-      (do
-        (info (str "swapping data store ..." version " ---- "(get-in @data-store [profile :version])))
-        (swap! data-store assoc profile (into {:version version}
-                                              (load-all-data profile)))
-        (validate-data profile "")))
+  (info (str "rebuilding data-store -> profile:" profile ", version:" version))
+  (if (get @data-store profile)
+    (when (not= version (get-in  @data-store [profile :version]))
+      (info (str "swapping data store ..." version " ---- "(get-in @data-store [profile :version])))
+      (load-and-validate-all-data! profile version))
     (do
-      (info "repo not found")
-      (swap! data-store assoc profile (into  {:version version}
-                                             (load-all-data profile)))
-      (validate-data profile ""))))
+      (info "repo not found, load into data-store")
+      (load-and-validate-all-data! profile version))))
 
 
 (defn watch-files

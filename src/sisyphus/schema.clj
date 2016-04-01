@@ -18,6 +18,13 @@
       eval))
 
 
+(defn load-schemas
+  []
+  (let [directory (io/file schema-data-path)
+        files (filter #(.isFile %) (file-seq directory))]    
+    (apply merge (map #(hash-map (keyword (.getName %)) (load-schema %)) files))))
+
+
 (defn- merge-schemas 
   [dirname]
   (let [directory (io/file dirname)
@@ -25,9 +32,9 @@
     (apply merge (map load-schema files))))
 
 
-(defn build-schema
+(defn merge-all-schemas
   ([]
-   (build-schema schema-data-path))
+   (merge-all-schemas schema-data-path))
   ([path]
    (merge-schemas path)))
 
