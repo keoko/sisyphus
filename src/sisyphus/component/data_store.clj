@@ -9,6 +9,8 @@
              :refer (info)]
             [clojure.core.async :as async :refer [go-loop <!!]]))
 
+(declare validate-profile)
+
 (def data-path "/tmp/")
 
 (def data-store (atom {}))
@@ -145,13 +147,27 @@
       nil
       (catch Exception e (.getMessage e)))))
 
-;; TODO: variants
-(defn validate-data
+(defn validate-root-config
   [schemas data]
-  (let [validations (map (fn [[k v]] (validate-config-group (get schemas k) v)) (:data data))]
+  (let [validations (map (fn [[k v]] (validate-config-group (get schemas k) v)) data)]
+    {:valid? (every? nil? validations)
+     :valid-message (clojure.string/join #"\n" validations)}))
+
+(defn validate-variants-config
+  [schemas variants root-data]
+  (map (fn [[k v]] 
+         {k (validate-profile schemas v root-data)}) 
+       variants))
+
+
+(defn validate-profile
+  [schemas data root-data]
+  (let [merged-data (meta-merge root-data (:data data))
+        root-validation (validate-root-config schemas merged-data)
+        variants-validation (when (seq  (:variants data)) 
+                        (validate-variants-config schemas (:variants data) merged-data))]
     (into data
-          {:valid? (every? nil? validations)
-           :valid-message (clojure.string/join #"\n" validations)})))
+          [root-validation {:variants variants-validation}])))
 
 
 
@@ -159,7 +175,7 @@
   [profile data]
   (let [schemas (load-schemas)]
     (timbre/debug (str "validating data..." profile data schemas))
-    (validate-data schemas data)))
+    (validate-profile schemas data {})))
 
 
 (defn load-and-validate-all-data!
