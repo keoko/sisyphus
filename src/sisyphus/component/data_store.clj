@@ -155,9 +155,9 @@
 
 (defn validate-variants-config
   [schemas variants root-data]
-  (map (fn [[k v]] 
-         {k (validate-profile schemas v root-data)}) 
-       variants))
+  (apply merge (map (fn [[k v]] 
+                      {k (validate-profile schemas v root-data)}) 
+                    variants)))
 
 
 (defn validate-profile
@@ -233,6 +233,7 @@
   (info (str "profile:" profile ",variant:" variant))
   (let [keys (build-data-keys profile variant)
         variants-data (map #(get-in @data-store %) keys)]
+    (info (str "variants:" keys))
     {:etag (get-in @data-store [profile :version])
      :valid?  (get-in @data-store [profile :valid?] true)
      :valid-message (get-in @data-store [profile :valid-message])

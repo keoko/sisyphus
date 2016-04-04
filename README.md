@@ -21,7 +21,7 @@ curl http://localhost:3000/app1-prd/tenant1/brand2
 
 
 ## TODO
-- validate config
+- return validation messages
 - config-group without extension
 - move base-dir and "repositories" profiles to conf
 - clean up naming: branch, version, repo, environment
