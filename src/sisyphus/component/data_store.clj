@@ -212,31 +212,38 @@
 
 
 (defn build-variant-data-keys
-  [profile variant]
+  [profile variant key]
    (let  [variants (map #(keyword %) (clojure.string/split variant #"/"))]
     (for [i (range 1 (inc (count variants)))]
       (-> (interpose :variants (take i variants))
            (conj :variants)
            (conj profile)
-           (concat [:data])))))
+           (concat [key])))))
 
 
 (defn build-data-keys
-  [profile variant]
-  (conj
-   (build-variant-data-keys profile variant)
-   [profile :data]))
+  [profile variant key]
+  (let [root-key [profile key]]
+    (if (= "" variant)
+      [root-key]
+      (conj
+       (build-variant-data-keys profile variant key)
+       root-key))))
 
 
 (defn get-data
   [profile variant]
   (info (str "profile:" profile ",variant:" variant))
-  (let [keys (build-data-keys profile variant)
-        variants-data (map #(get-in @data-store %) keys)]
+  (let [data-keys (build-data-keys profile variant :data)
+        valid-keys (build-data-keys profile variant :valid?)
+        valid-message-keys (build-data-keys profile variant :valid-message)
+        variants-data (map #(get-in @data-store %) data-keys)
+        variants-valid (map #(get-in @data-store %) valid-keys)
+        variants-valid-message (map #(get-in @data-store %) valid-message-keys)]
     (info (str "variants:" keys))
     {:etag (get-in @data-store [profile :version])
-     :valid?  (get-in @data-store [profile :valid?] true)
-     :valid-message (get-in @data-store [profile :valid-message])
+     :valid?  (every? true? variants-valid)
+     :valid-message (clojure.string/join #"," variants-valid-message)
      :config (apply meta-merge (vals (apply meta-merge variants-data)))}))
 
 

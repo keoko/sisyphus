@@ -37,7 +37,7 @@
                                  "etag" etag}
                        :body config}
              
-                      {:status 404
+                      {:status 500
                        :headers {"Content-Type" "text/html; charset=utf-8"}
                        :body valid-message})
                     (catch Exception e 
