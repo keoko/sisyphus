@@ -9,6 +9,7 @@
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [ring.middleware.format :refer [wrap-restful-format]]
             [sisyphus.endpoint.config :refer [config-endpoint]]
+            [sisyphus.endpoint.group :refer [group-endpoint]]
             [sisyphus.component.scheduler :refer [scheduler-component]]
             [sisyphus.component.data-store :refer [data-store-component]]))
 
@@ -19,19 +20,22 @@
          :not-found  "Resource Not Found"
          :defaults   (meta-merge api-defaults {})}})
 
+
 (defn new-system [config]
   (let [config (meta-merge base-config config)
         data-store-chan (async/chan 10)]
     (-> (component/system-map
          :app  (handler-component (:app config))
          :http (jetty-server (:http config))
-         :config (endpoint-component config-endpoint)
+         :group-endpoint (endpoint-component group-endpoint)
+         :config-endpoint (endpoint-component config-endpoint)
          :scheduler (scheduler-component (:scheduler config) data-store-chan)
          :data-store (data-store-component (:data-store config) data-store-chan))
         
         (component/system-using
          {:http [:app]
-          :app  [:config]
-          :config []
+          :app  [:config-endpoint :group-endpoint]
+          :config-endpoint []
+          :group-endpoint []
           :scheduler []
           :data-store []}))))
