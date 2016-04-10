@@ -11,6 +11,7 @@
 
 (def repos (get config/defaults :repositories))
 
+
 (defn get-repo-hash
   [repo]
   (-> repo
@@ -50,4 +51,21 @@
 (defn update-repos
   [time]
   (info "updating repo")
-  (doall (map update-repo repos)))
+  (doall (map (fn [[k v]] (update-repo v)) repos)))
+
+
+(defn push-file
+  [repo-id dir filename content]
+  (let [repo-dir (:dir (get repos repo-id))
+        relative-filename (if (empty? dir)
+                            filename 
+                            (str dir "/" filename))
+        full-filename (str repo-dir "/" dir "/" filename)
+        repo (git/load-repo repo-dir)]
+    (io/make-parents full-filename)
+    (spit full-filename content)
+    (git/git-add repo relative-filename)
+    (git/git-commit repo (str "changed " relative-filename))
+    (-> repo
+        (.push)
+        (.call))))

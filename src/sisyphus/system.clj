@@ -18,7 +18,7 @@
                       [wrap-not-found :not-found]
                       [wrap-defaults :defaults]]
          :not-found  "Resource Not Found"
-         :defaults   (meta-merge api-defaults {})}})
+         :defaults   (meta-merge api-defaults {:multipart true})}})
 
 
 (defn new-system [config]

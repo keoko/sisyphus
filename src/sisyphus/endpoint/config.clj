@@ -24,10 +24,10 @@
 (defn config-endpoint
   [conf]
   (context "/config" []
-           (GET ["/:env/:config-key" :config-key #".*"] 
-                [env :<< keyword 
-                 config-key :<< str]
-                (let [{:keys [config etag valid? valid-message]} (get-data env config-key)]
+           (GET ["/:profile-id/:variant-path" :variant-path #".*"] 
+                [profile-id :<< keyword 
+                 variant-path :<< str]
+                (let [{:keys [config etag valid? valid-message]} (get-data profile-id variant-path)]
                   (add-logger)
                   (info "endpoint config request")
                   (try                    
