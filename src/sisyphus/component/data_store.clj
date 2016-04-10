@@ -1,6 +1,6 @@
 (ns sisyphus.component.data-store
   (:require [sisyphus.schema :refer [validate-schema load-schemas]]
-            [sisyphus.repository :refer [push-file]]
+            [sisyphus.repository :refer [get-file push-file]]
             [com.stuartsierra.component :as component]
             [clojure.java.io :as io]
             [clojure.edn :as edn]
@@ -250,7 +250,7 @@
 
 (defn get-group
   [profile variant group]
-  {:data (get-in @data-store [profile :data group])})
+  (get-file profile variant (name group)))
 
 
 (defn save-group [profile variant group data]

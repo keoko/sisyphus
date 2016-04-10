@@ -1,7 +1,17 @@
 (ns sisyphus.endpoint.group
   (:require [compojure.core :refer :all]
-            [sisyphus.component.data-store :refer [get-group save-group]]))
+            [sisyphus.component.data-store :refer [get-group save-group]]
+            [clojure.string :refer [join split]]))
 
+
+(defn split-variant-and-group
+  [s]
+  (let [parts (split s #"/")
+        variant-id (->> parts
+                       butlast
+                       (join "/"))
+        group-id (last parts)]
+    [variant-id group-id]))
 
 ;; URL:
 ;;   / -> invalid
@@ -12,34 +22,45 @@
 (defn group-endpoint
   [conf]
   (context "/group" []
-           (GET ["/:profile-id/:group-id" :group-id #".*"]
-                [profile-id :<< keyword 
-                 group-id :<< keyword] 
-                (let [variant-id "" ;; todo
-                      group (get-group profile-id variant-id group-id)]
+           (GET ["/:profile-id/:variant-and-group" :variant-and-group #".*"]
+                [profile-id :<< keyword
+                 variant-and-group :<< str] 
+                (try 
+                  (let [[variant-id group-id] (split-variant-and-group variant-and-group)
+                        group (get-group profile-id variant-id group-id)]
                     {:headers {"Access-Control-Allow-Origin" "*"
                                "Access-Control-Allow-Methods" "GET,PUT,POST,DELETE,OPTIONS"
                                "Access-Control-Allow-Headers" "X-Requested-With,Content-Type,Cache-Control"}
                      :body {:profile-id profile-id
+                            :variant-id variant-id
                             :group-id group-id
-                            :data "#YAML file
-- job1
-- job2
-- job3
-- job4"}}))
-           (POST ["/:profile-id/:variant-id/:group-id" :group-id #".*"]
+                            :data group}})
+                  (catch java.io.FileNotFoundException e
+                    {:headers {"Access-Control-Allow-Origin" "*"
+                               "Access-Control-Allow-Methods" "GET,PUT,POST,DELETE,OPTIONS"
+                               "Access-Control-Allow-Headers" "X-Requested-With,Content-Type,Cache-Control"}
+                     :status 404
+                     :body (.getMessage e)})
+                  (catch Exception e
+                    {:headers {"Access-Control-Allow-Origin" "*"
+                               "Access-Control-Allow-Methods" "GET,PUT,POST,DELETE,OPTIONS"
+                               "Access-Control-Allow-Headers" "X-Requested-With,Content-Type,Cache-Control"}
+                     :status 500
+                     :body (.getMessage e)})))
+
+           (POST ["/:profile-id/:variant-and-group" :variant-and-group #".*"]
                 [profile-id :<< keyword 
-                 variant-id :<< str
-                 group-id :<< keyword
+                 variant-and-group :<< str
                  group-data :<< str]
-                (let [saved? (save-group profile-id variant-id group-id group-data)]
+                (let [[variant-id group-id] (split-variant-and-group variant-and-group)
+                      saved? (save-group profile-id variant-id group-id group-data)]
                     {:headers {"Access-Control-Allow-Origin" "*"
                                "Access-Control-Allow-Methods" "GET,PUT,POST,DELETE,OPTIONS"
                                "Access-Control-Allow-Headers" "X-Requested-With,Content-Type,Cache-Control"}
                      :body [profile-id variant-id group-id group-data]
                      :status (if saved? 200 500)}))
            ;; ajax.core request OPTIONS before a POST, not sure why.
-           (OPTIONS ["/:profile-id/:variant-id/:group-id" :group-id #".*"]
+           (OPTIONS ["/:profile-id/:variant-and-group" :variant-and-group #".*"]
                     req
                  {:headers {"Access-Control-Allow-Origin" "*"
                             "Access-Control-Allow-Methods" "GET,PUT,POST,DELETE,OPTIONS"

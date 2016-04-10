@@ -54,6 +54,12 @@
   (doall (map (fn [[k v]] (update-repo v)) repos)))
 
 
+(defn get-file
+  [repo-id dir filename]
+  (let [repo-dir (:dir (get repos repo-id))
+        full-filename (str repo-dir "/" dir "/" filename)]
+    (slurp full-filename)))
+
 (defn push-file
   [repo-id dir filename content]
   (let [repo-dir (:dir (get repos repo-id))
