@@ -18,27 +18,13 @@ curl http://localhost:3000/app1-prd/tenant1/brand2
 - hierarchical keys (e.g. A, A/B, A/B/C).
 - optional config validation.
 - configuration data stored in git repositories.
+- supported format: YAML.
 
 
 ## TODO
+- filter not supported files
 - return validation messages
-- config-group without extension
 - move base-dir and "repositories" profiles to conf
-- clean up naming: branch, version, repo, environment
-- clean logger data in a component?
-- backoffice to manage configuration
-
-## Backoffice
-- profiles list
-- variants list per profile
-- add new variant
-- add new group
-- delete group
-- update group
-- use re-frame
-- use https://ace.c9.io/
-- edit files
-- display inheritance?
 
 
 ## CURRENT ISSUES
@@ -46,9 +32,27 @@ curl http://localhost:3000/app1-prd/tenant1/brand2
 - if the branch does not exist, no exception is thrown
 - git merging strategies fail when repo is already created :(
 
+## Git issues
+Add user SSH keys, do not confuse with SSH deply keys!!!!
+Use SSH protocol, not HTTP.
+HTTP needs credentials
+
+
+GitLab: Deploy keys are not allowed to push code.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+### permission denied
+Permission denied (publickey).
+fatal: Could not read from remote repository.
+
+
 
 ## NICE TO HAVE
 ### FEATURES
+- clean up naming: branch, version, repo, environment
 - security (authentication OAuth?) check CMS TW
 - configurable repositories (do we store them in git?) every X minutes update the conf file
 - on re-loading app, remove directories and start clean
@@ -61,13 +65,15 @@ curl http://localhost:3000/app1-prd/tenant1/brand2
 - swagger
 - schema coercion
 - show historical data
+- support different formats (json, edn, etc.). 
 - unit/integration/acceptance testing
 - client UI to manage and store data
 - client caching strategy (HTTP HEAD, etc)
 - versioning: use git tags, or git hash numbers to retrieve specific versions. Not so sure, whether it's so useful, as you would usually be interested on the latest changes. If it's rarely used, it could be implemented just cloning a repo, just for that case. It would take more time to load, but it's a tradeoff.
-- use jail component to evaluate clojure schema files like clojail.
 
 ### CLOJURE
+- use jail component to evaluate clojure schema files like clojail.
+- clean logger data in a component?
 - use protocol to abstract data store
 - yada not used, missing documentation
 - Datomic as data store.

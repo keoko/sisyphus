@@ -6,7 +6,7 @@
    :scheduler {}
    :repositories 
    {:app1-prd {
-               :url  "http://git@192.168.99.100:10080/root/app2.git" 
+               :url  "ssh://git@192.168.99.100:10022/root/app1-prd.git" 
                :env :app1-prd
                :branch "master"
                :dir "/tmp/app1-prd"

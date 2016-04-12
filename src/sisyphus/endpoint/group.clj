@@ -1,6 +1,8 @@
 (ns sisyphus.endpoint.group
   (:require [compojure.core :refer :all]
             [sisyphus.component.data-store :refer [get-group save-group]]
+            [taoensso.timbre :as timbre
+             :refer (info)]
             [clojure.string :refer [join split]]))
 
 
@@ -52,13 +54,19 @@
                 [profile-id :<< keyword 
                  variant-and-group :<< str
                  group-data :<< str]
-                (let [[variant-id group-id] (split-variant-and-group variant-and-group)
-                      saved? (save-group profile-id variant-id group-id group-data)]
+                (try 
+                  (let [[variant-id group-id] (split-variant-and-group variant-and-group)
+                        saved? (save-group profile-id variant-id group-id group-data)]
                     {:headers {"Access-Control-Allow-Origin" "*"
                                "Access-Control-Allow-Methods" "GET,PUT,POST,DELETE,OPTIONS"
                                "Access-Control-Allow-Headers" "X-Requested-With,Content-Type,Cache-Control"}
                      :body [profile-id variant-id group-id group-data]
-                     :status (if saved? 200 500)}))
+                     :status (if saved? 200 500)})
+                  (catch Exception e 
+                    (do
+                      (info (str "msg --->" (.getMessage e)))
+                      {:body (str "exception message:" (.getMessage e))
+                         :status 500}))))
            ;; ajax.core request OPTIONS before a POST, not sure why.
            (OPTIONS ["/:profile-id/:variant-and-group" :variant-and-group #".*"]
                     req

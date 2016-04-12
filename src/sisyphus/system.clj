@@ -9,6 +9,7 @@
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [ring.middleware.format :refer [wrap-restful-format]]
             [sisyphus.endpoint.config :refer [config-endpoint]]
+            [sisyphus.endpoint.profile :refer [profile-endpoint]]
             [sisyphus.endpoint.group :refer [group-endpoint]]
             [sisyphus.component.scheduler :refer [scheduler-component]]
             [sisyphus.component.data-store :refer [data-store-component]]))
@@ -27,6 +28,7 @@
     (-> (component/system-map
          :app  (handler-component (:app config))
          :http (jetty-server (:http config))
+         :profile-endpoint (endpoint-component profile-endpoint)
          :group-endpoint (endpoint-component group-endpoint)
          :config-endpoint (endpoint-component config-endpoint)
          :scheduler (scheduler-component (:scheduler config) data-store-chan)
@@ -34,8 +36,9 @@
         
         (component/system-using
          {:http [:app]
-          :app  [:config-endpoint :group-endpoint]
+          :app  [:config-endpoint :profile-endpoint :group-endpoint]
           :config-endpoint []
+          :profile-endpoint []
           :group-endpoint []
           :scheduler []
           :data-store []}))))

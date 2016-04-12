@@ -67,10 +67,12 @@
 
 (defn read-single-file 
   [file]
-  (let [parser (get-parser (.getName file) default-extensions)]
-    (-> file
-        slurp
-        parser)))
+  (try 
+    (let [parser (get-parser (.getName file) default-extensions)]
+      (-> file
+          slurp
+          parser))
+    (catch Exception e nil)))
 
 (defn read-directory
   [dir]
@@ -104,13 +106,21 @@
 
 ;; new ones
 
+(defn get-extension [f]
+  (-> (.getName f)
+      (clojure.string/split #"\.")
+      last))
+
+(defn filter-supported-formats [fs]
+  (filter #(get default-extensions (get-extension %)) fs))
+
 (defn load-data
   [dir]
   (let [files (->> (.listFiles dir) 
                   (filter #(.isFile %))
+                  filter-supported-formats
                   (sort-by #(.getName %)))]
     (apply merge (map #(hash-map (keyword (.getName %)) (read-single-file %)) files))))
-
 
 
 (defn load-dir
@@ -255,3 +265,17 @@
 
 (defn save-group [profile variant group data]
   (push-file profile variant (name group) data))
+
+(defn get-group-structure [g variant-id]
+  (let [group-ids (keys g)]
+    {variant-id group-ids}))
+
+(defn get-variants-structure [p parent-variant-id]
+  (let [full-variant-id (fn [p v] (str (name p) (name v) "/"))]
+    (meta-merge (get-group-structure (:data p) parent-variant-id)
+                (map (fn [[k v]] (get-variants-structure v (full-variant-id parent-variant-id k))) (:variants p)))))
+
+(defn get-profiles-structure []
+  (-> (map (fn [[k v]] {k (get-variants-structure v "/")}) @data-store)
+      flatten
+      first))
