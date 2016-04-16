@@ -18,9 +18,6 @@
 
 
 (def default-extensions
-  "The default mapping from file extension to a [[ConfigParser]] for content from such a file.
-
-  Provides parsers for the \"yaml\" and \"edn\" extensions."
   {"yaml" #(yaml/parse-string % true)
    "yml" #(yaml/parse-string % true)
    "edn"  edn/read-string
@@ -62,8 +59,7 @@
   (let [base-path (.getCanonicalPath base-dir)
         paths (for [i (range 1 (inc (count dirs)))]
                 (io/file (str base-path "/" (clojure.string/join "/" (take i dirs)))))]
-    (conj paths base-dir)
-))
+    (conj paths base-dir)))
 
 (defn read-single-file 
   [file]
@@ -81,7 +77,6 @@
                   (sort-by #(.getName %)))]
     files
     (merge-config files read-single-file)))
-
 
 (defn read-directories 
   [dirs base-dir]
@@ -120,7 +115,7 @@
                   (filter #(.isFile %))
                   filter-supported-formats
                   (sort-by #(.getName %)))]
-    (apply merge (map #(hash-map (keyword (.getName %)) (read-single-file %)) files))))
+    (apply meta-merge (map #(hash-map (keyword (.getName %)) (read-single-file %)) files))))
 
 
 (defn load-dir
@@ -145,24 +140,21 @@
     (load-dir base-dir)))
 
 
-#_(validate-schema schema config)
-;;                    schema (build-schema)
-
-
 
 (defn validate-config-group
   [schema config-group]
   (when schema
     (try
       (validate-schema schema config-group)
-      nil
+      nil ;; return nil, if there it's valid!!!
       (catch Exception e (.getMessage e)))))
 
 (defn validate-root-config
   [schemas data]
-  (let [validations (map (fn [[k v]] (validate-config-group (get schemas k) v)) data)]
+  (let [validations  
+        (map (fn [[k v]] (validate-config-group (get schemas k) v)) data)]
     {:valid? (every? nil? validations)
-     :valid-message (clojure.string/join #"\n" validations)}))
+     :valid-message (clojure.string/join #"\n" (remove nil? validations))}))
 
 (defn validate-variants-config
   [schemas variants root-data]
@@ -183,9 +175,9 @@
 
 
 (defn validate-all-data
-  [profile data]
+  [data]
   (let [schemas (load-schemas)]
-    (timbre/debug (str "validating data..." profile data schemas))
+    (timbre/debug (str "validating data..."))
     (validate-profile schemas data {})))
 
 
@@ -197,8 +189,7 @@
            assoc 
            profile 
            (into {:version version}
-                 (validate-all-data profile data)))
-    (validate-all-data profile data)))
+                 (validate-all-data data)))))
 
 
 (defn rebuild-data-store
@@ -217,7 +208,6 @@
   [data-store-chan]
   (go-loop []
     (let [[repo-name repo-version] (<!! data-store-chan)]
-      (info (str "msg:" repo-name repo-version))
       (rebuild-data-store repo-name repo-version)
       (recur))))
 
@@ -250,8 +240,11 @@
         valid-message-keys (build-data-keys profile variant :valid-message)
         variants-data (map #(get-in @data-store %) data-keys)
         variants-valid (map #(get-in @data-store %) valid-keys)
-        variants-valid-message (map #(get-in @data-store %) valid-message-keys)]
+        variants-valid-message (->> valid-message-keys
+                                   (map #(get-in @data-store %))
+                                   (remove empty?))]
     (info (str "variants:" keys))
+    (timbre/info (str "valid message:" (vec variants-valid-message)))
     {:etag (get-in @data-store [profile :version])
      :valid?  (every? true? variants-valid)
      :valid-message (clojure.string/join #"," variants-valid-message)
@@ -276,6 +269,10 @@
                 (map (fn [[k v]] (get-variants-structure v (full-variant-id parent-variant-id k))) (:variants p)))))
 
 (defn get-profiles-structure []
-  (-> (map (fn [[k v]] {k (get-variants-structure v "/")}) @data-store)
+  (->> (map (fn [[k v]] {k (get-variants-structure v "/")}) @data-store)
       flatten
-      first))
+      (apply merge)))
+
+(defn profile-found?
+  [profile]
+  (nil? (:etag profile)))

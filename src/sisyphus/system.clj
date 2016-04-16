@@ -15,7 +15,7 @@
             [sisyphus.component.data-store :refer [data-store-component]]))
 
 (def base-config
-  {:app {:middleware [wrap-restful-format
+  {:app {:middleware [[wrap-restful-format :formats [:json :edn :yaml :msgpack :msgpack-kw :yaml-in-html :transit-json :transit-msgpack]]
                       [wrap-not-found :not-found]
                       [wrap-defaults :defaults]]
          :not-found  "Resource Not Found"

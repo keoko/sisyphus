@@ -5,9 +5,15 @@
    [sisyphus.config :as config]
    [clojure.java.io :as io]
    [taoensso.timbre :as timbre
-    :refer (info)]
+    :refer (info error)]
    [chime :refer [chime-at]]))
 
+
+(defn delete-dir
+  [dir]
+  (when (.isDirectory dir)
+    (map #(delete-dir %) (.listFiles dir)))
+  (.delete dir))
 
 (def repos (get config/defaults :repositories))
 
@@ -38,12 +44,18 @@
 
 (defn update-repo
   [{:keys [env url branch dir]}]
-  ;; get repo dir
+  (info (str "update-repo env:" env))
   (let [repo-dir (io/file dir)]
-    (info (str "dir:" dir  "isdir?:" (.isDirectory repo-dir) ", env:" env))
+    (info (str "dir:" dir  ", isdir?:" (.isDirectory repo-dir) ", env:" env))
     (if (.isDirectory repo-dir)
-      (pull-repo! repo-dir)
-      (clone-repo! repo-dir url branch))
+      (try 
+        (pull-repo! repo-dir)
+        (catch Exception e (error "cannot pull repo:" (.getMessage e))))
+      (try
+        (clone-repo! repo-dir url branch)
+        (catch Exception e (do
+                             (error "cannot clone repo: " (.getMessage e))
+                             (delete-dir repo-dir)))))
     (info (str "vec:" env))
     [env (get-repo-hash (git/load-repo repo-dir))]))
 
@@ -51,7 +63,7 @@
 (defn update-repos
   [time]
   (info "updating repo")
-  (doall (map (fn [[k v]] (update-repo v)) repos)))
+  (doall (pmap (fn [[k v]] (update-repo v)) repos)))
 
 
 (defn get-file

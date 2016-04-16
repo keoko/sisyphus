@@ -29,6 +29,3 @@
 
 (defn scheduler-component [connection chan]
   (->SchedulerComponent connection chan))
-
-
-

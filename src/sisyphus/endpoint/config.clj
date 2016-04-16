@@ -1,6 +1,6 @@
 (ns sisyphus.endpoint.config
   (:require [compojure.core :refer :all]
-            [sisyphus.component.data-store :refer [get-data]]
+            [sisyphus.component.data-store :refer [get-data profile-found?]]
             [taoensso.timbre :as timbre
              :refer (info)]
             [taoensso.timbre.appenders.core :as appenders]))
@@ -27,20 +27,21 @@
            (GET ["/:profile-id/:variant-path" :variant-path #".*"] 
                 [profile-id :<< keyword 
                  variant-path :<< str]
-                (let [{:keys [config etag valid? valid-message]} (get-data profile-id variant-path)]
+                (let [{:keys [config etag valid? valid-message] :as profile} (get-data profile-id variant-path)]
                   (add-logger)
                   (info "endpoint config request")
-                  (try                    
-                    (if valid?
-                      {:status 200
-                       :headers {"Content-Type" "text/html; charset=utf-8"
-                                 "etag" etag}
-                       :body config}
-             
-                      {:status 500
-                       :headers {"Content-Type" "text/html; charset=utf-8"}
-                       :body valid-message})
+                  (try
+                    (cond
+                      (profile-found? profile) {:status 404
+                                                :headers {"Content-Type" "application/json"}}
+                      valid? {:status 200
+                              :headers {"Cache-Control" "public"
+                                        "etag" etag}
+                              :body config}
+                      :else {:status 500
+                             :headers {"Content-Type" "application/json"}
+                             :body valid-message})
                     (catch Exception e 
                       {:status 500
-                       :headers {"Content-Type" "text/html; charset=utf-8"}
+                       :headers {"Content-Type" "application/json"}
                        :body (.getMessage e)}))))))

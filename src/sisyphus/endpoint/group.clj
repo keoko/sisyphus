@@ -66,6 +66,7 @@
                     (do
                       (info (str "msg --->" (.getMessage e)))
                       {:body (str "exception message:" (.getMessage e))
+                       :headers {"X-Exception" (.getMessage e)}
                          :status 500}))))
            ;; ajax.core request OPTIONS before a POST, not sure why.
            (OPTIONS ["/:profile-id/:variant-and-group" :variant-and-group #".*"]

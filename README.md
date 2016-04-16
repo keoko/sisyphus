@@ -22,6 +22,7 @@ curl http://localhost:3000/app1-prd/tenant1/brand2
 
 
 ## TODO
+- updaload into atom does not work
 - filter not supported files
 - return validation messages
 - move base-dir and "repositories" profiles to conf
@@ -54,12 +55,11 @@ fatal: Could not read from remote repository.
 ### FEATURES
 - clean up naming: branch, version, repo, environment
 - security (authentication OAuth?) check CMS TW
+- git repo security (credentials)
 - configurable repositories (do we store them in git?) every X minutes update the conf file
 - on re-loading app, remove directories and start clean
-- filter extension files not available
 - timbre logger added as a component. add log wrapper? look at pepa project
 - key definition in Schema
-- git repo security (credentials)
 - interesting hybrid model (push with gitconsul and pull REST)
 - metrics
 - swagger
@@ -68,10 +68,10 @@ fatal: Could not read from remote repository.
 - support different formats (json, edn, etc.). 
 - unit/integration/acceptance testing
 - client UI to manage and store data
-- client caching strategy (HTTP HEAD, etc)
 - versioning: use git tags, or git hash numbers to retrieve specific versions. Not so sure, whether it's so useful, as you would usually be interested on the latest changes. If it's rarely used, it could be implemented just cloning a repo, just for that case. It would take more time to load, but it's a tradeoff.
 
 ### CLOJURE
+- wrap cors
 - use jail component to evaluate clojure schema files like clojail.
 - clean logger data in a component?
 - use protocol to abstract data store
