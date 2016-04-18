@@ -4,9 +4,6 @@
             [schema.coerce :as coerce]
             [clojure.java.io :as io]))
 
-(def schema-data-path "resources/schema")
-
-
 ;; @todo read-string security issue???
 (defn- load-schema
   [filename]
@@ -19,9 +16,9 @@
 
 
 (defn load-schemas
-  []
-  (let [directory (io/file schema-data-path)
-        files (filter #(.isFile %) (file-seq directory))]    
+  [dirname]
+  (let [dir (io/file dirname)
+        files (filter #(.isFile %) (file-seq dir))]    
     (apply merge (map #(hash-map (keyword (.getName %)) (load-schema %)) files))))
 
 
@@ -33,10 +30,8 @@
 
 
 (defn merge-all-schemas
-  ([]
-   (merge-all-schemas schema-data-path))
-  ([path]
-   (merge-schemas path)))
+  [path]
+  (merge-schemas path))
 
 (defn validate-schema
   [schema config]

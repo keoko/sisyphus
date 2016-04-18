@@ -50,9 +50,6 @@
                         {:path       path
                          :extensions extensions})))))
 
-(defn merge-config 
- [s f]
-  (reduce (fn [x y] (meta-merge x (f y))) {}  s))
 
 (defn build-paths 
   [dirs base-dir]
@@ -70,36 +67,25 @@
           parser))
     (catch Exception e nil)))
 
-(defn read-directory
-  [dir]
-  (let [files (->> (.listFiles dir) 
-                  (filter #(.isFile %))
-                  (sort-by #(.getName %)))]
-    files
-    (merge-config files read-single-file)))
-
-(defn read-directories 
-  [dirs base-dir]
-  (let [paths (build-paths dirs base-dir)
-        get-existing-dirs (take-while #(.isDirectory %) paths)]
-    (merge-config get-existing-dirs read-directory)))
-
 
 (defn get-base-dir
-  [env]
-  (let [dir-name (str data-path "/" (name env))]
-    (io/file dir-name)))
+  [profile]
+  (let [dirname (str data-path "/" (name profile))]
+    (io/file dirname)))
+
+(defn get-data-dir
+  [profile]
+  (let [base-dir (get-base-dir profile)
+        dirname (str (.getCanonicalPath base-dir) "/data")]
+    (io/file dirname)))
+
+(defn get-schema-dir
+  [profile]
+  (let [base-dir (get-base-dir profile)
+        dirname (str (.getCanonicalPath base-dir) "/schema")]
+    (io/file dirname)))
 
 
-(defn load-data-old
-  [config-key env]
-  (let [dirs (clojure.string/split config-key #"/")
-        base-dir (get-base-dir env)]
-    (timbre/debug (str  "loading data ... " env))
-    (read-directories dirs base-dir)))
-
-
-;; new ones
 
 (defn get-extension [f]
   (-> (.getName f)
@@ -135,7 +121,7 @@
 
 (defn load-all-data
   [profile]
-  (let [base-dir (get-base-dir profile)]
+  (let [base-dir (get-data-dir profile)]
     (timbre/debug (str "loading data... " profile))
     (load-dir base-dir)))
 
@@ -175,8 +161,8 @@
 
 
 (defn validate-all-data
-  [data]
-  (let [schemas (load-schemas)]
+  [data profile]
+  (let [schemas (load-schemas (get-schema-dir profile))]
     (timbre/debug (str "validating data..."))
     (validate-profile schemas data {})))
 
@@ -189,7 +175,7 @@
            assoc 
            profile 
            (into {:version version}
-                 (validate-all-data data)))))
+                 (validate-all-data data profile)))))
 
 
 (defn rebuild-data-store

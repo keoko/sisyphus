@@ -1,5 +1,0 @@
-{:ReturnReasons1
- {:reasons
-  [s/Str]
-  }
- }
