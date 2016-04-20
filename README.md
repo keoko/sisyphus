@@ -22,10 +22,7 @@ curl http://localhost:3000/app1-prd/tenant1/brand2
 
 
 ## TODO
-- updaload into atom does not work
-- filter not supported files
-- return validation messages
-- move base-dir and "repositories" profiles to conf
+- documentation
 
 
 ## CURRENT ISSUES
@@ -33,11 +30,11 @@ curl http://localhost:3000/app1-prd/tenant1/brand2
 - if the branch does not exist, no exception is thrown
 - git merging strategies fail when repo is already created :(
 
+
 ## Git issues
 Add user SSH keys, do not confuse with SSH deply keys!!!!
 Use SSH protocol, not HTTP.
 HTTP needs credentials
-
 
 GitLab: Deploy keys are not allowed to push code.
 fatal: Could not read from remote repository.
@@ -59,6 +56,7 @@ fatal: Could not read from remote repository.
 - configurable repositories (do we store them in git?) every X minutes update the conf file
 - on re-loading app, remove directories and start clean
 - timbre logger added as a component. add log wrapper? look at pepa project
+- use an atom for each profile, not a big one.
 - key definition in Schema
 - interesting hybrid model (push with gitconsul and pull REST)
 - metrics

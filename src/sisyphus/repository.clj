@@ -69,7 +69,7 @@
 (defn get-file
   [repo-id dir filename]
   (let [repo-dir (:dir (get repos repo-id))
-        full-filename (str repo-dir "/" dir "/" filename)]
+        full-filename (str repo-dir "/data/" dir "/" filename)]
     (slurp full-filename)))
 
 (defn push-file
@@ -78,7 +78,7 @@
         relative-filename (if (empty? dir)
                             filename 
                             (str dir "/" filename))
-        full-filename (str repo-dir "/" dir "/" filename)
+        full-filename (str repo-dir "/data/" dir "/" filename)
         repo (git/load-repo repo-dir)]
     (io/make-parents full-filename)
     (spit full-filename content)
