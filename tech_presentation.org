@@ -1,0 +1,186 @@
+#+TITLE: Sisyphus Tech notes
+#+AUTHOR: Natxo Cabré
+#+EMAIL: @keoko
+#+OPTIONS: toc:nil reveal_mathjax:t reveal_slide_number:nil num:nil
+#+REVEAL_THEME: night
+#+REVEAL_TRANS: linear
+#+REVEAL_ROOT: file:///Users/icabrebarrera/dev/reveal.js
+#+REVEAL_PLUGINS: (highlight)
+
+* Goal
+Proof of concept of Facebook's holistic configuration system
+- Push-based system -> VistaPrint's git2consul
+- Pull-based system -> Everything *Clojure!*
+
+* Server-side libs
+- Duct
+- Component
+- Core.async
+- Pristamic's Schema
+- Timbre
+- Chime
+- clj-jgit
+- clj-yaml
+- meta-merge
+- environ
+
+** Duct
+minimal framework for building web apps. 
+Used to set up quickly ring, compojure and component.
+Alternative: *yada* but discarded due to lack of documentation
+** Component
+manage lifecycle of stateful objects.
+Alternative: *mount* although I didn't explore. Based on information, it looks like component is the de facto solution.
+** Core Async
+Communication between components.
+#+BEGIN_SRC clojure
+(defn watch-files
+  [data-store-chan]
+  (go-loop []
+    (let [[repo-name repo-version] (<!! data-store-chan)]
+      (rebuild-data-store repo-name repo-version)
+      (recur))))
+#+END_SRC
+
+#+BEGIN_SRC clojure
+[let stop-scheduler (chime-at every-10-secs (fn [time] 
+  (doall
+    (map
+      (fn [x] (>!! chan x))
+        (doall (repo/update-repos time))))))]
+#+END_SRC
+Alternative: queues, zeromq, onyx, pulsar.
+** Prismatic’s schema
+data schema validation.
+Alternative: *schema* is the de facto data validation solution.
+
+#+BEGIN_SRC clojure
+(defn validate-schema
+  [schema config]
+  (s/validate schema config))
+#+END_SRC
+
+#+BEGIN_SRC clojure
+(defn- load-schema
+  [filename]
+  (require '[schema.core :as s])
+  (-> filename
+      io/file
+      slurp
+      read-string
+      eval))
+#+END_SRC
+
+Use clojail to control the security breach.
+
+** Timbre
+pure logging library.
+Pepa's wrap-logging strategy.
+#+BEGIN_SRC clojure
+(defn make-system []
+  (-> (component/system-map
+       :config (config/make-component)
+       :bus (bus/make-component)
+       :db (component/using
+            (db/make-component)
+            [:config :bus])
+       :web (component/using
+             (web/make-component)
+             [:config :db :bus])
+       :zeroconf (component/using
+                  (zeroconf/make-component)
+                  [:config])
+       :systemd (systemd/make-component))
+      (wrap-logging)))
+#+END_SRC
+Alternative: clojure.tools.logging although *Timbre* is the de factor logging solution.
+
+** Chime
+really lightweight scheduler.
+#+BEGIN_SRC clojure
+(defrecord SchedulerComponent [connection chan]
+  component/Lifecycle
+  (start [component]
+    (let [every-10-secs (rest (periodic-seq (t/now)
+                                           (-> 10 t/seconds)))
+          stop-scheduler (chime-at every-10-secs (fn [time] 
+                                                   (doall
+                                                    (map
+                                                     (fn [x] (>!! chan x))
+                                                     (doall (repo/update-repos time))))))]
+      (info "starting scheduler")
+      (assoc component :stop-fn stop-scheduler)))
+  (stop [component]
+    (when-let [stop-fn (get component :stop-fn)]
+      (info "stopping scheduler")
+      (stop-fn))
+    (dissoc component :stop-fn)))
+#+END_SRC
+** clj-jgit
+JGit wrapper.
+missing functionality.
+** clj-yaml
+SnakeYAML wrapper to manage YAML files.
+** meta-merge
+merge function with more advance features.
+** environ
+manage environment variables.
+
+* Client-side libs
+- re-frame
+- re-com
+- secretary
+- garden
+- cljs-ajax
+- cljsjs/codemirror
+** re-frame
+Talk about om-next
+Video about om-next, re-frame, etc.
+** re-com
+only for desktop apps.
+** secretary
+not used.
+** garden
+just for fun.
+** cljs-ajax
+sente
+** cljsjs/codemirror
+talk about Ace
+Container pattern
+
+* Clojure, The Good Parts
+@rafaoe's tweet: Clojure, The Good Parts - https://rasterize.io/blog/clojure-the-good-parts.html … #clojure #lisp
+- Avoid Binding: OK
+- Avoid Agents: OK
+- Avoid STM: OK
+- Use atoms, sparingly: OK
+- Avoid global mutable state: FAILED
+    + store it in a component
+- Avoid pmap: FAILED
+    + reducers + fork/join, core.async's pipeline or Java concurrency
+- Avoid metadata: FAILED
+    + meta-merge lib uses metadata
+- Component: OK
+- Schema: OK
+- core.async: OK
+- timbre: OK
+- clj-time: FAILED
+- clojure-test: FAILED
+- don't wrap clj-http:
+- build a single artifact
+- avoid writing lein plugins
+- prefer clojure over build tools
+
+* Architecture Diagram
+
+* Conclusions
+
+* Links
+Facebook paper.
+Clojure, The Good Parts. [[https://rasterize.io/blog/clojure-the-good-parts.html]]
+Applied Clojure [[https://pragprog.com/book/vmclojeco/clojure-applied]]
+
+* Doubts
+- code
+- italycs, 
+- hide category numbers

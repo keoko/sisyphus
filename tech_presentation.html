@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Sisyphus Tech notes</title>
+<meta name="author" content="(Natxo Cabré)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///Users/icabrebarrera/dev/reveal.js/css/reveal.css"/>
+<link rel="stylesheet" href="file:///Users/icabrebarrera/dev/reveal.js/css/theme/night.css" id="theme"/>
+<link rel="stylesheet" href="file:///Users/icabrebarrera/dev/reveal.js/lib/css/zenburn.css"/>
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'file:///Users/icabrebarrera/dev/reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1>Sisyphus Tech notes</h1>
+<h2>Natxo Cabré</h2>
+<h2><a href="mailto:@keoko">@keoko</a></h2>
+<h2></h2>
+</section>
+
+<section>
+<section id="slide-orgheadline1">
+<h2 id="orgheadline1">Goal</h2>
+<p>
+Proof of concept of Facebook's holistic configuration system
+</p>
+<ul>
+<li>Push-based system -&gt; VistaPrint's git2consul</li>
+<li>Pull-based system -&gt; Everything <b>Clojure!</b></li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgheadline12">
+<h2 id="orgheadline12">Server-side libs</h2>
+<ul>
+<li>Duct</li>
+<li>Component</li>
+<li>Core.async</li>
+<li>Pristamic's Schema</li>
+<li>Timbre</li>
+<li>Chime</li>
+<li>clj-jgit</li>
+<li>clj-yaml</li>
+<li>meta-merge</li>
+<li>environ</li>
+
+</ul>
+
+</section>
+<section id="slide-orgheadline2">
+<h3 id="orgheadline2">Duct</h3>
+<p>
+minimal framework for building web apps. 
+Used to set up quickly ring, compojure and component.
+Alternative: <b>yada</b> but discarded due to lack of documentation
+</p>
+</section>
+<section id="slide-orgheadline3">
+<h3 id="orgheadline3">Component</h3>
+<p>
+manage lifecycle of stateful objects.
+Alternative: <b>mount</b> although I didn't explore. Based on information, it looks like component is the de facto solution.
+</p>
+</section>
+<section id="slide-orgheadline4">
+<h3 id="orgheadline4">Core Async</h3>
+<p>
+Communication between components.
+</p>
+<div class="org-src-container">
+
+<pre><code class="clojure">(defn watch-files
+  [data-store-chan]
+  (go-loop []
+    (let [[repo-name repo-version] (&lt;!! data-store-chan)]
+      (rebuild-data-store repo-name repo-version)
+      (recur))))
+</code></pre>
+</div>
+
+<div class="org-src-container">
+
+<pre><code class="clojure">[let stop-scheduler (chime-at every-10-secs (fn [time] 
+  (doall
+    (map
+      (fn [x] (&gt;!! chan x))
+        (doall (repo/update-repos time))))))]
+</code></pre>
+</div>
+<p>
+Alternative: queues, zeromq, onyx, pulsar.
+</p>
+</section>
+<section id="slide-orgheadline5">
+<h3 id="orgheadline5">Prismatic’s schema</h3>
+<p>
+data schema validation.
+Alternative: <b>schema</b> is the de facto data validation solution.
+</p>
+
+<div class="org-src-container">
+
+<pre><code class="clojure">(defn validate-schema
+  [schema config]
+  (s/validate schema config))
+</code></pre>
+</div>
+
+<div class="org-src-container">
+
+<pre><code class="clojure">(defn- load-schema
+  [filename]
+  (require '[schema.core :as s])
+  (-&gt; filename
+      io/file
+      slurp
+      read-string
+      eval))
+</code></pre>
+</div>
+
+<p>
+Use clojail to control the security breach.
+</p>
+
+</section>
+<section id="slide-orgheadline6">
+<h3 id="orgheadline6">Timbre</h3>
+<p>
+pure logging library.
+Pepa's wrap-logging strategy.
+</p>
+<div class="org-src-container">
+
+<pre><code class="clojure">(defn make-system []
+  (-&gt; (component/system-map
+       :config (config/make-component)
+       :bus (bus/make-component)
+       :db (component/using
+            (db/make-component)
+            [:config :bus])
+       :web (component/using
+             (web/make-component)
+             [:config :db :bus])
+       :zeroconf (component/using
+                  (zeroconf/make-component)
+                  [:config])
+       :systemd (systemd/make-component))
+      (wrap-logging)))
+</code></pre>
+</div>
+<p>
+Alternative: clojure.tools.logging although <b>Timbre</b> is the de factor logging solution.
+</p>
+
+</section>
+<section id="slide-orgheadline7">
+<h3 id="orgheadline7">Chime</h3>
+<p>
+really lightweight scheduler.
+</p>
+<div class="org-src-container">
+
+<pre><code class="clojure">(defrecord SchedulerComponent [connection chan]
+  component/Lifecycle
+  (start [component]
+    (let [every-10-secs (rest (periodic-seq (t/now)
+                                           (-&gt; 10 t/seconds)))
+          stop-scheduler (chime-at every-10-secs (fn [time] 
+                                                   (doall
+                                                    (map
+                                                     (fn [x] (&gt;!! chan x))
+                                                     (doall (repo/update-repos time))))))]
+      (info "starting scheduler")
+      (assoc component :stop-fn stop-scheduler)))
+  (stop [component]
+    (when-let [stop-fn (get component :stop-fn)]
+      (info "stopping scheduler")
+      (stop-fn))
+    (dissoc component :stop-fn)))
+</code></pre>
+</div>
+</section>
+<section id="slide-orgheadline8">
+<h3 id="orgheadline8">clj-jgit</h3>
+<p>
+JGit wrapper.
+missing functionality.
+</p>
+</section>
+<section id="slide-orgheadline9">
+<h3 id="orgheadline9">clj-yaml</h3>
+<p>
+SnakeYAML wrapper to manage YAML files.
+</p>
+</section>
+<section id="slide-orgheadline10">
+<h3 id="orgheadline10">meta-merge</h3>
+<p>
+merge function with more advance features.
+</p>
+</section>
+<section id="slide-orgheadline11">
+<h3 id="orgheadline11">environ</h3>
+<p>
+manage environment variables.
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-orgheadline19">
+<h2 id="orgheadline19">Client-side libs</h2>
+<ul>
+<li>re-frame</li>
+<li>re-com</li>
+<li>secretary</li>
+<li>garden</li>
+<li>cljs-ajax</li>
+<li>cljsjs/codemirror</li>
+
+</ul>
+</section>
+<section id="slide-orgheadline13">
+<h3 id="orgheadline13">re-frame</h3>
+<p>
+Talk about om-next
+Video about om-next, re-frame, etc.
+</p>
+</section>
+<section id="slide-orgheadline14">
+<h3 id="orgheadline14">re-com</h3>
+<p>
+only for desktop apps.
+</p>
+</section>
+<section id="slide-orgheadline15">
+<h3 id="orgheadline15">secretary</h3>
+<p>
+not used.
+</p>
+</section>
+<section id="slide-orgheadline16">
+<h3 id="orgheadline16">garden</h3>
+<p>
+just for fun.
+</p>
+</section>
+<section id="slide-orgheadline17">
+<h3 id="orgheadline17">cljs-ajax</h3>
+<p>
+sente
+</p>
+</section>
+<section id="slide-orgheadline18">
+<h3 id="orgheadline18">cljsjs/codemirror</h3>
+<p>
+talk about Ace
+Container pattern
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-orgheadline20">
+<h2 id="orgheadline20">Clojure, The Good Parts</h2>
+<p>
+@rafaoe's tweet: Clojure, The Good Parts - <a href="https://rasterize.io/blog/clojure-the-good-parts.html">https://rasterize.io/blog/clojure-the-good-parts.html</a> … #clojure #lisp
+</p>
+<ul>
+<li>Avoid Binding: OK</li>
+<li>Avoid Agents: OK</li>
+<li>Avoid STM: OK</li>
+<li>Use atoms, sparingly: OK</li>
+<li>Avoid global mutable state: FAILED
+<ul>
+<li>store it in a component</li>
+
+</ul></li>
+<li>Avoid pmap: FAILED
+<ul>
+<li>reducers + fork/join, core.async's pipeline or Java concurrency</li>
+
+</ul></li>
+<li>Avoid metadata: FAILED
+<ul>
+<li>meta-merge lib uses metadata</li>
+
+</ul></li>
+<li>Component: OK</li>
+<li>Schema: OK</li>
+<li>core.async: OK</li>
+<li>timbre: OK</li>
+<li>clj-time: FAILED</li>
+<li>clojure-test: FAILED</li>
+<li>don't wrap clj-http:</li>
+<li>build a single artifact</li>
+<li>avoid writing lein plugins</li>
+<li>prefer clojure over build tools</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgheadline21">
+<h2 id="orgheadline21">Architecture Diagram</h2>
+
+</section>
+</section>
+<section>
+<section id="slide-orgheadline22">
+<h2 id="orgheadline22">Conclusions</h2>
+
+</section>
+</section>
+<section>
+<section id="slide-orgheadline23">
+<h2 id="orgheadline23">Links</h2>
+<p>
+Facebook paper.
+Clojure, The Good Parts. <a href="https://rasterize.io/blog/clojure-the-good-parts.html">https://rasterize.io/blog/clojure-the-good-parts.html</a>
+Applied Clojure <a href="https://pragprog.com/book/vmclojeco/clojure-applied">https://pragprog.com/book/vmclojeco/clojure-applied</a>
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-orgheadline24">
+<h2 id="orgheadline24">Doubts</h2>
+<ul>
+<li>code</li>
+<li>italycs,</li>
+<li>hide category numbers</li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///Users/icabrebarrera/dev/reveal.js/lib/js/head.min.js"></script>
+<script src="file:///Users/icabrebarrera/dev/reveal.js/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: false,
+rollingLinks: false,
+keyboard: true,
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: 'file:///Users/icabrebarrera/dev/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }]
+});
+</script>
+</body>
+</html>
